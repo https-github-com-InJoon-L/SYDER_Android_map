@@ -34,6 +34,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -140,61 +141,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        ArrayList<String> title = new ArrayList<String>();
-        ArrayList<Double> lat   = new ArrayList<Double>();
-        ArrayList<Double> lng   = new ArrayList<Double>();
-
-        String url = "http://13.124.189.186/api/waypoints";
-        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            public void onResponse(String response) {
-                Log.d(TAG,"맵" + response);
-                try {
-                    JSONObject jsonResponse = new JSONObject(response);
-                    JSONArray jsonWaypointArray = jsonResponse.getJSONArray("waypoints");
-
-                    for (int i = 0; i < jsonWaypointArray.length(); i++) {
-                        JSONObject result = jsonWaypointArray.getJSONObject(i);
-                        title.add(i, result.getString("name"));
-                        lat.add(i, result.getDouble("lat"));
-                        lng.add(i, result.getDouble("lng"));
-                    }
-                    Log.d(TAG, "좌표 " + title.get(1) + lat.get(1) + lng.get(1));
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "에러 하이고" );
-                }
-            }
-        },new Response.ErrorListener(){
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG,"에러 ->" + error.getMessage());
-            }
-        });
-        request.setShouldCache(false);
-        requestQueue.add(request);
-        Log.i(TAG,"맵");
 
         mMap = googleMap;
         LatLng YJU = new LatLng(35.896274, 128.621827);
-//        LatLng YJU_library      = new LatLng(lat.get(4),lng.get(4));
+        LatLng YJU_library      = new LatLng(WaypointActivity.wayLat.get(4),WaypointActivity.wayLng.get(4));
 //        LatLng YJU_engineering  = new LatLng(35.896353,128.621822);
-//        LatLng YJU_Yeonsogwan   = new LatLng(lat.get(2),lng.get(2));
-//        LatLng YJU_mainbuilding = new LatLng(lat.get(0),lng.get(0));
-//        LatLng YJU_frontgate    = new LatLng(lat.get(1),lng.get(1));
-//        LatLng YJU_backgate     = new LatLng(lat.get(3),lng.get(3));
+        LatLng YJU_Yeonsogwan   = new LatLng(WaypointActivity.wayLat.get(2),WaypointActivity.wayLng.get(2));
+        LatLng YJU_mainbuilding = new LatLng(WaypointActivity.wayLat.get(0),WaypointActivity.wayLng.get(0));
+        LatLng YJU_frontgate    = new LatLng(WaypointActivity.wayLat.get(1),WaypointActivity.wayLng.get(1));
+        LatLng YJU_backgate     = new LatLng(WaypointActivity.wayLat.get(3),WaypointActivity.wayLng.get(3));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(YJU, 17));
-//        mMap.addMarker(new MarkerOptions().position(YJU_library).title(title.get(4)));
+        mMap.addMarker(new MarkerOptions().position(YJU_library).title(WaypointActivity.wayName.get(4)));
 //        mMap.addMarker(new MarkerOptions().position(YJU_engineering).title("공학관"));
-//        mMap.addMarker(new MarkerOptions().position(YJU_Yeonsogwan).title(title.get(2)));
-//        mMap.addMarker(new MarkerOptions().position(YJU_mainbuilding).title(title.get(0)));
-//        mMap.addMarker(new MarkerOptions().position(YJU_frontgate).title(title.get(1)));
-//        mMap.addMarker(new MarkerOptions().position(YJU_backgate).title(title.get(3)));
+        mMap.addMarker(new MarkerOptions().position(YJU_Yeonsogwan).title(WaypointActivity.wayName.get(2)));
+        mMap.addMarker(new MarkerOptions().position(YJU_mainbuilding).title(WaypointActivity.wayName.get(0)));
+        mMap.addMarker(new MarkerOptions().position(YJU_frontgate).title(WaypointActivity.wayName.get(1)));
+        mMap.addMarker(new MarkerOptions().position(YJU_backgate).title(WaypointActivity.wayName.get(3)));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(YJU));
-
-
     }
 
     DrawerLayout.DrawerListener listener = new DrawerLayout.DrawerListener() {

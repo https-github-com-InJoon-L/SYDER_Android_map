@@ -83,8 +83,10 @@ public class ActivityLogin extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Intent intent = new Intent(ActivityLogin.this, MainActivity.class);
+                //------------------------------------------------------------------------------
+                Intent intent = new Intent(ActivityLogin.this, WaypointActivity.class);
                 startActivity(intent);
+                //-------------------------------------------------------------------------------
             }
         },new Response.ErrorListener(){
 
