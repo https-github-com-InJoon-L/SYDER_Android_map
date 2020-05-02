@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -59,14 +60,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         drawerView = (View) findViewById(R.id.drawer);
 
         ImageView menu_open = (ImageView)findViewById(R.id.menu_open);
-        ImageButton callWay = (ImageButton)findViewById(R.id.imageButton);
 
-        callWay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getWaypoint();
-            }
-        });
         menu_open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,51 +138,59 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void getWaypoint() {
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        ArrayList<String> title = new ArrayList<String>();
+        ArrayList<Double> lat   = new ArrayList<Double>();
+        ArrayList<Double> lng   = new ArrayList<Double>();
+
         String url = "http://13.124.189.186/api/waypoints";
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             public void onResponse(String response) {
                 Log.d(TAG,"맵" + response);
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
+                    JSONArray jsonWaypointArray = jsonResponse.getJSONArray("waypoints");
 
-                    JSONObject jsonWaypoints = jsonResponse.getJSONObject("waypoints");
-
+                    for (int i = 0; i < jsonWaypointArray.length(); i++) {
+                        JSONObject result = jsonWaypointArray.getJSONObject(i);
+                        title.add(i, result.getString("name"));
+                        lat.add(i, result.getDouble("lat"));
+                        lng.add(i, result.getDouble("lng"));
+                    }
+                    Log.d(TAG, "좌표 " + title.get(1) + lat.get(1) + lng.get(1));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    Log.e(TAG, "에러 하이고" );
                 }
             }
         },new Response.ErrorListener(){
-
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG,"에러 ->" + error.getMessage());
             }
-
         });
         request.setShouldCache(false);
         requestQueue.add(request);
         Log.i(TAG,"맵");
-    }
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
         LatLng YJU = new LatLng(35.896274, 128.621827);
-        LatLng YJU_library      = new LatLng(35.895283,128.622631);
-        LatLng YJU_engineering  = new LatLng(35.896353,128.621822);
-        LatLng YJU_Yeonsogwan   = new LatLng(35.896731,128.622876);
-        LatLng YJU_mainbuilding = new LatLng(35.896511,128.620931);
-        LatLng YJU_frontgate    = new LatLng(35.895252,128.623585);
-        LatLng YJU_backgate     = new LatLng(35.896240,128.620180);
+//        LatLng YJU_library      = new LatLng(lat.get(4),lng.get(4));
+//        LatLng YJU_engineering  = new LatLng(35.896353,128.621822);
+//        LatLng YJU_Yeonsogwan   = new LatLng(lat.get(2),lng.get(2));
+//        LatLng YJU_mainbuilding = new LatLng(lat.get(0),lng.get(0));
+//        LatLng YJU_frontgate    = new LatLng(lat.get(1),lng.get(1));
+//        LatLng YJU_backgate     = new LatLng(lat.get(3),lng.get(3));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(YJU, 17));
-        mMap.addMarker(new MarkerOptions().position(YJU_library).title("도서관"));
-        mMap.addMarker(new MarkerOptions().position(YJU_engineering).title("공학관"));
-        mMap.addMarker(new MarkerOptions().position(YJU_Yeonsogwan).title("연서관"));
-        mMap.addMarker(new MarkerOptions().position(YJU_mainbuilding).title("본관"));
-        mMap.addMarker(new MarkerOptions().position(YJU_frontgate).title("정문"));
-        mMap.addMarker(new MarkerOptions().position(YJU_backgate).title("후문"));
+//        mMap.addMarker(new MarkerOptions().position(YJU_library).title(title.get(4)));
+//        mMap.addMarker(new MarkerOptions().position(YJU_engineering).title("공학관"));
+//        mMap.addMarker(new MarkerOptions().position(YJU_Yeonsogwan).title(title.get(2)));
+//        mMap.addMarker(new MarkerOptions().position(YJU_mainbuilding).title(title.get(0)));
+//        mMap.addMarker(new MarkerOptions().position(YJU_frontgate).title(title.get(1)));
+//        mMap.addMarker(new MarkerOptions().position(YJU_backgate).title(title.get(3)));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(YJU));
 
