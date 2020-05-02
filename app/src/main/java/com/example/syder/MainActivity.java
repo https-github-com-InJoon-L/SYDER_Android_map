@@ -107,36 +107,38 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void logout(){
         String url = "http://13.124.189.186/api/logout";
 
-        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            public void onResponse(String response) {
-                Log.d(TAG,"응답" + response);
-
-            }
-        },new Response.ErrorListener(){
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG,"에러 ->" + error.getMessage());
-            }
-        }
-        ){
+        StringRequest logoutRequest = new StringRequest(Request.Method.POST, url,
+                response->{
+                    Log.i(TAG, response);
+                    Toast.makeText(getApplicationContext(), "로그아웃 받아옴", Toast.LENGTH_SHORT).show();
+                },
+                error -> Log.i(TAG, error.getMessage())
+        ) {
             protected Map<String, String> getParams() throws AuthFailureError{
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("guard", "user");
+                params.put("guard" , "user");
                 return params;
             }
+
             public Map getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
 
                 return params;
             }
+
         };
 
-        request.setShouldCache(false);
-        requestQueue.add(request);
+        logoutRequest.setShouldCache(false);
+        Log.i(TAG,"request" + logoutRequest);
+        requestQueue.add(logoutRequest);
         Log.i(TAG,"요청 보냄.");
 
+        Log.i(TAG,"토큰 값" + ActivityLogin.loginResponse);
+        ActivityLogin.loginResponse = null;
+
+        Intent intent = new Intent(MainActivity.this, ActivityLogin.class);
+        startActivity(intent);
     }
 
     @Override
@@ -150,6 +152,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng YJU_mainbuilding = new LatLng(WaypointActivity.wayLat.get(0),WaypointActivity.wayLng.get(0));
         LatLng YJU_frontgate    = new LatLng(WaypointActivity.wayLat.get(1),WaypointActivity.wayLng.get(1));
         LatLng YJU_backgate     = new LatLng(WaypointActivity.wayLat.get(3),WaypointActivity.wayLng.get(3));
+
+        Log.d(TAG, "좌표 -> " + WaypointActivity.wayLng.get(0) + " " + WaypointActivity.wayLat.get(0));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(YJU, 17));
         mMap.addMarker(new MarkerOptions().position(YJU_library).title(WaypointActivity.wayName.get(4)));

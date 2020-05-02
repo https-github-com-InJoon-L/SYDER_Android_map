@@ -1,6 +1,7 @@
 package com.example.syder;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ public class WaypointActivity extends AppCompatActivity {
         makeRequest();
         Intent intent = new Intent(WaypointActivity.this, MainActivity.class);
         startActivity(intent);
+        finish();
     }
 
     public void makeRequest() {
