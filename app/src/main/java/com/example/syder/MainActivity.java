@@ -1,10 +1,17 @@
 package com.example.syder;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -26,6 +33,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -147,22 +156,22 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         LatLng YJU = new LatLng(35.896274, 128.621827);
         LatLng YJU_library      = new LatLng(WaypointActivity.wayLat.get(8),WaypointActivity.wayLng.get(8));
-//        LatLng YJU_engineering  = new LatLng(35.896353,128.621822);
         LatLng YJU_Yeonsogwan   = new LatLng(WaypointActivity.wayLat.get(5),WaypointActivity.wayLng.get(5));
         LatLng YJU_mainbuilding = new LatLng(WaypointActivity.wayLat.get(6),WaypointActivity.wayLng.get(6));
         LatLng YJU_frontgate    = new LatLng(WaypointActivity.wayLat.get(9),WaypointActivity.wayLng.get(9));
         LatLng YJU_backgate     = new LatLng(WaypointActivity.wayLat.get(10),WaypointActivity.wayLng.get(10));
 
-//        Log.d(TAG, "좌표 -> " + WaypointActivity.wayLng.get(0) + " " + WaypointActivity.wayLat.get(0));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(YJU, 17));
         mMap.addMarker(new MarkerOptions().position(YJU_library).title(WaypointActivity.wayName.get(8)));
-//        mMap.addMarker(new MarkerOptions().position(YJU_engineering).title("공학관"));
         mMap.addMarker(new MarkerOptions().position(YJU_Yeonsogwan).title(WaypointActivity.wayName.get(5)));
         mMap.addMarker(new MarkerOptions().position(YJU_mainbuilding).title(WaypointActivity.wayName.get(6)));
         mMap.addMarker(new MarkerOptions().position(YJU_frontgate).title(WaypointActivity.wayName.get(9)));
         mMap.addMarker(new MarkerOptions().position(YJU_backgate).title(WaypointActivity.wayName.get(10)));
-
+        //크기를 지정해서 비트맵으로 만들기
+        Bitmap bit = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.driving),
+                60, 60, false);
+        mMap.addMarker(new MarkerOptions().position(YJU).icon(BitmapDescriptorFactory.fromBitmap(bit)));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(YJU));
     }
 
