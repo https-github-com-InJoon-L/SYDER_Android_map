@@ -146,22 +146,22 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap = googleMap;
         LatLng YJU = new LatLng(35.896274, 128.621827);
-        LatLng YJU_library      = new LatLng(WaypointActivity.wayLat.get(4),WaypointActivity.wayLng.get(4));
+        LatLng YJU_library      = new LatLng(WaypointActivity.wayLat.get(8),WaypointActivity.wayLng.get(8));
 //        LatLng YJU_engineering  = new LatLng(35.896353,128.621822);
-        LatLng YJU_Yeonsogwan   = new LatLng(WaypointActivity.wayLat.get(2),WaypointActivity.wayLng.get(2));
-        LatLng YJU_mainbuilding = new LatLng(WaypointActivity.wayLat.get(0),WaypointActivity.wayLng.get(0));
-        LatLng YJU_frontgate    = new LatLng(WaypointActivity.wayLat.get(1),WaypointActivity.wayLng.get(1));
-        LatLng YJU_backgate     = new LatLng(WaypointActivity.wayLat.get(3),WaypointActivity.wayLng.get(3));
+        LatLng YJU_Yeonsogwan   = new LatLng(WaypointActivity.wayLat.get(5),WaypointActivity.wayLng.get(5));
+        LatLng YJU_mainbuilding = new LatLng(WaypointActivity.wayLat.get(6),WaypointActivity.wayLng.get(6));
+        LatLng YJU_frontgate    = new LatLng(WaypointActivity.wayLat.get(9),WaypointActivity.wayLng.get(9));
+        LatLng YJU_backgate     = new LatLng(WaypointActivity.wayLat.get(10),WaypointActivity.wayLng.get(10));
 
-        Log.d(TAG, "좌표 -> " + WaypointActivity.wayLng.get(0) + " " + WaypointActivity.wayLat.get(0));
+//        Log.d(TAG, "좌표 -> " + WaypointActivity.wayLng.get(0) + " " + WaypointActivity.wayLat.get(0));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(YJU, 17));
-        mMap.addMarker(new MarkerOptions().position(YJU_library).title(WaypointActivity.wayName.get(4)));
+        mMap.addMarker(new MarkerOptions().position(YJU_library).title(WaypointActivity.wayName.get(8)));
 //        mMap.addMarker(new MarkerOptions().position(YJU_engineering).title("공학관"));
-        mMap.addMarker(new MarkerOptions().position(YJU_Yeonsogwan).title(WaypointActivity.wayName.get(2)));
-        mMap.addMarker(new MarkerOptions().position(YJU_mainbuilding).title(WaypointActivity.wayName.get(0)));
-        mMap.addMarker(new MarkerOptions().position(YJU_frontgate).title(WaypointActivity.wayName.get(1)));
-        mMap.addMarker(new MarkerOptions().position(YJU_backgate).title(WaypointActivity.wayName.get(3)));
+        mMap.addMarker(new MarkerOptions().position(YJU_Yeonsogwan).title(WaypointActivity.wayName.get(5)));
+        mMap.addMarker(new MarkerOptions().position(YJU_mainbuilding).title(WaypointActivity.wayName.get(6)));
+        mMap.addMarker(new MarkerOptions().position(YJU_frontgate).title(WaypointActivity.wayName.get(9)));
+        mMap.addMarker(new MarkerOptions().position(YJU_backgate).title(WaypointActivity.wayName.get(10)));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(YJU));
     }
