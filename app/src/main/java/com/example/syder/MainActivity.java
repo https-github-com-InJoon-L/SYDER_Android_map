@@ -19,6 +19,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -36,6 +38,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
@@ -48,7 +51,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private ActivityMainBinding binding;
     private static final String TAG =  "activity_main";
     private GoogleMap           mMap;
@@ -58,6 +61,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private DrawerLayout drawerLayout;
     private View drawerView;
     private RequestQueue requestQueue;
+    private TextView startPoint;
+    private TextView endPoint;
+    private TextView timeAttack;
+    private TextView tiemResult;
+    private LinearLayout deliveryInfo;
+    private Marker selectedMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +77,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         requestQueue =  Volley.newRequestQueue(this);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         drawerView = (View) findViewById(R.id.drawer);
-
+        startPoint = findViewById(R.id.startPoint);
+        endPoint = findViewById(R.id.endPoint);
+        timeAttack = findViewById(R.id.timeAttack);
+        tiemResult = findViewById(R.id.timeResult);
+        deliveryInfo = findViewById(R.id.deliveryInfo);
         ImageView menu_open = (ImageView)findViewById(R.id.menu_open);
 
         menu_open.setOnClickListener(new View.OnClickListener() {
@@ -150,28 +163,75 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(intent);
     }
 
+    //addMarker 재수정
+    public Marker addMarker(MarkerModel markerModel, boolean isSelectedMarker) {
+        LatLng position = new LatLng(markerModel.getLat(), markerModel.getLng());
+        String title = markerModel.getTitle();
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.title(title);
+        markerOptions.position(position);
+        // 클릭시 아이콘 배치할겨
+//        if(isSelectedMarker) {
+//            markerOptions.icon(BitmapDescriptorFactory.fromResource());
+//        }else {
+//            markerOptions.icon(BitmapDescriptorFactory.fromResource());
+//        }
+        return mMap.addMarker(markerOptions);
+    }
+    // 서버에서 받아온 데이터로 마커 생성
+    private void getMarkerItems() {
+        ArrayList<MarkerModel> list = new ArrayList<MarkerModel>();
+        try {
+            for (int i = 0; i < WaypointActivity.jsonWaypointArray.length(); i++) {
+                JSONObject result = WaypointActivity.jsonWaypointArray.getJSONObject(i);
+                list.add(new MarkerModel(result.getDouble("lat"), result.getDouble("lng"),
+                        result.getString("name")));
+            }
+        }catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, "에러 하이고" );
+        }
+
+
+        for (MarkerModel markerModel : list) {
+            addMarker(markerModel, false);
+        }
+    }
+    // 표시 마커 동작
+    private void changeSelectedMarker(Marker marker) {
+
+        // 선택했던 마커 되돌리기
+        if(selectedMarker != null) {
+            addMarker(new MarkerModel(selectedMarker.getPosition().latitude, selectedMarker.getPosition().longitude,
+                    selectedMarker.getTitle()), false);
+            selectedMarker.remove();
+        }
+        //선택한 마커 표시
+        if(marker != null) {
+            selectedMarker = addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
+                    marker.getTitle()), true);
+            marker.remove();
+
+
+        }
+    }
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-        LatLng YJU = new LatLng(35.896274, 128.621827);
-        LatLng YJU_library      = new LatLng(WaypointActivity.wayLat.get(8),WaypointActivity.wayLng.get(8));
-        LatLng YJU_Yeonsogwan   = new LatLng(WaypointActivity.wayLat.get(5),WaypointActivity.wayLng.get(5));
-        LatLng YJU_mainbuilding = new LatLng(WaypointActivity.wayLat.get(6),WaypointActivity.wayLng.get(6));
-        LatLng YJU_frontgate    = new LatLng(WaypointActivity.wayLat.get(9),WaypointActivity.wayLng.get(9));
-        LatLng YJU_backgate     = new LatLng(WaypointActivity.wayLat.get(10),WaypointActivity.wayLng.get(10));
+        getMarkerItems();
 
+        //-----------------------------------------------------------------------
+        LatLng YJU = new LatLng(35.896274, 128.621827);
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(YJU, 17));
-        mMap.addMarker(new MarkerOptions().position(YJU_library).title(WaypointActivity.wayName.get(8)));
-        mMap.addMarker(new MarkerOptions().position(YJU_Yeonsogwan).title(WaypointActivity.wayName.get(5)));
-        mMap.addMarker(new MarkerOptions().position(YJU_mainbuilding).title(WaypointActivity.wayName.get(6)));
-        mMap.addMarker(new MarkerOptions().position(YJU_frontgate).title(WaypointActivity.wayName.get(9)));
-        mMap.addMarker(new MarkerOptions().position(YJU_backgate).title(WaypointActivity.wayName.get(10)));
-        //크기를 지정해서 비트맵으로 만들기
+        //크기를 지정해서 비트맵으로 만들기 자동차
         Bitmap bit = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.driving),
                 60, 60, false);
         mMap.addMarker(new MarkerOptions().position(YJU).icon(BitmapDescriptorFactory.fromBitmap(bit)));
+        //마커 클릭에 대한 이벤트 처리
+        mMap.setOnMarkerClickListener(this);
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(YJU));
     }
 
@@ -194,4 +254,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        changeSelectedMarker(marker);
+        deliveryInfo.setVisibility(View.VISIBLE);
+        //marker.getId()는 마커생성 순서
+        startPoint.setText(marker.getTitle());
+        Log.d(TAG, "선택 -> " + selectedMarker + " 마커 -> " + marker);
+        return false;
+    }
 }

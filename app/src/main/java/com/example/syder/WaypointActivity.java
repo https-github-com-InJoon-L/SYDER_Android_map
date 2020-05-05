@@ -29,9 +29,7 @@ public class WaypointActivity extends AppCompatActivity {
     private static String TAG = "waypoint_activity";
     private ActivityWaypointBinding binding;
     private RequestQueue requestQueue;
-    static ArrayList<String> wayName = new ArrayList<String>();
-    static ArrayList<Double> wayLat = new ArrayList<Double>();
-    static ArrayList<Double> wayLng = new ArrayList<Double>();
+    static JSONArray jsonWaypointArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,15 +51,7 @@ public class WaypointActivity extends AppCompatActivity {
                 Log.d(TAG,"맵" + response);
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
-                    JSONArray jsonWaypointArray = jsonResponse.getJSONArray("waypoints");
-                    String getName;
-                    for (int i = 0; i < jsonWaypointArray.length(); i++) {
-                        JSONObject result = jsonWaypointArray.getJSONObject(i);
-                        wayName.add(i, result.getString("name"));
-                        wayLat.add(i, result.getDouble("lat"));
-                        wayLng.add(i, result.getDouble("lng"));
-                        Log.d(TAG, "좌표제목 : " + wayName.get(i));
-                    }
+                    jsonWaypointArray = jsonResponse.getJSONArray("waypoints");
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e(TAG, "에러 하이고" );
