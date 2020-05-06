@@ -67,6 +67,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private TextView tiemResult;
     private LinearLayout deliveryInfo;
     private Marker selectedMarker;
+    static int selectedCount = 0;
+    static String[] selectedTitle = new String[2];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +121,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 ActivityLogin.loginResponse = null;
             }
         });
+
+        binding.send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, activity_send.class);
+                startActivity(intent);
+            }
+        });
+
         mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -170,12 +181,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.title(title);
         markerOptions.position(position);
-        // 클릭시 아이콘 배치할겨
-//        if(isSelectedMarker) {
+//         클릭시 아이콘 배치할겨
+        if(isSelectedMarker) {
 //            markerOptions.icon(BitmapDescriptorFactory.fromResource());
-//        }else {
+            if(selectedCount != 2) { selectedTitle[selectedCount] = title; }
+            Log.d(TAG, "마커 표시addMarker " + title);
+        }else {
 //            markerOptions.icon(BitmapDescriptorFactory.fromResource());
-//        }
+        }
         return mMap.addMarker(markerOptions);
     }
     // 서버에서 받아온 데이터로 마커 생성
@@ -205,14 +218,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             addMarker(new MarkerModel(selectedMarker.getPosition().latitude, selectedMarker.getPosition().longitude,
                     selectedMarker.getTitle()), false);
             selectedMarker.remove();
+            Log.d(TAG, "마커 선택changeselected");
         }
         //선택한 마커 표시
-        if(marker != null) {
+        if (marker != null) {
             selectedMarker = addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
                     marker.getTitle()), true);
             marker.remove();
-
-
+            Log.d(TAG, "마커 선택changenull");
         }
     }
     @Override
@@ -258,9 +271,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public boolean onMarkerClick(Marker marker) {
         changeSelectedMarker(marker);
         deliveryInfo.setVisibility(View.VISIBLE);
+        if(selectedCount != 2) { selectedCount++; }
         //marker.getId()는 마커생성 순서
-        startPoint.setText(marker.getTitle());
+        startPoint.setText("출발지: " + selectedTitle[0]);
+        endPoint.setText(selectedTitle[1] == null ? "도착지: " : "도착지: " + selectedTitle[1]);
         Log.d(TAG, "선택 -> " + selectedMarker + " 마커 -> " + marker);
+        Log.d(TAG, "마커 제발 되라 " + selectedCount + " 제목좀 " +selectedTitle[0] + selectedTitle[1]);
         return false;
     }
 }
