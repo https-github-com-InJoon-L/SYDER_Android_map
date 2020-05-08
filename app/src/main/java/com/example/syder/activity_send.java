@@ -47,7 +47,8 @@ public class activity_send extends AppCompatActivity {
 
 
     public void checkSender(){
-        String url = "http://13.124.189.186/api/user/request";
+        String setPhone = binding.senderPhonenumber.getText().toString();
+        String url = "http://13.124.189.186/api/user/request?phone=" + setPhone + "&guard=admin";
 
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
 
@@ -64,13 +65,6 @@ public class activity_send extends AppCompatActivity {
             }
         }
         ){
-            protected Map<String, String> getParams() throws AuthFailureError{
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("phone", binding.senderPhonenumber.getText().toString());
-                params.put("guard", "admin");
-                return params;
-            }
-
             public Map getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);

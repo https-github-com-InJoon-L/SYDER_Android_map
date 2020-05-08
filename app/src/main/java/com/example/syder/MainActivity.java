@@ -93,7 +93,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
         mQueue = Volley.newRequestQueue(this);
 
         drawerLayout.setDrawerListener(listener);
@@ -181,13 +180,32 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.title(title);
         markerOptions.position(position);
+
+        Bitmap markerDraw = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_place_black_18dp),
+                80, 80, false);
+        Bitmap markerDrawSelected_1= Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_pin_drop_white_24dp),
+                80, 80, false);
+        Bitmap markerDrawSelected_2= Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_pin_drop_black_24dp),
+                80, 80, false);
+
 //         클릭시 아이콘 배치할겨
         if(isSelectedMarker) {
-//            markerOptions.icon(BitmapDescriptorFactory.fromResource());
-            if(selectedCount != 2) { selectedTitle[selectedCount] = title; }
+            if(selectedCount != 2) {
+                selectedTitle[selectedCount] = title;
+                selectedCount++;
+                Log.d(TAG, "제목 설정 및 카운트 업");
+            }
+
+            if (selectedCount == 1) {
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(markerDrawSelected_1));
+            } else if(selectedCount == 2){
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(markerDrawSelected_2));
+            }
             Log.d(TAG, "마커 표시addMarker " + title);
         }else {
-//            markerOptions.icon(BitmapDescriptorFactory.fromResource());
+            if(selectedCount != 0) { selectedCount--; }
+            Log.d(TAG, "제목 카운터 다운");
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(markerDraw));
         }
         return mMap.addMarker(markerOptions);
     }
@@ -212,20 +230,26 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
     // 표시 마커 동작
     private void changeSelectedMarker(Marker marker) {
-
-        // 선택했던 마커 되돌리기
-        if(selectedMarker != null) {
-            addMarker(new MarkerModel(selectedMarker.getPosition().latitude, selectedMarker.getPosition().longitude,
-                    selectedMarker.getTitle()), false);
-            selectedMarker.remove();
-            Log.d(TAG, "마커 선택changeselected");
-        }
-        //선택한 마커 표시
-        if (marker != null) {
-            selectedMarker = addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
+            // 선택했던 마커 다시 선택시 되돌리기 단, 순서대로
+        if((selectedTitle[0] != null && selectedTitle[0].equals(marker.getTitle()))
+        || (selectedTitle[1] != null && selectedTitle[1].equals(marker.getTitle()))) {
+            if(selectedTitle[1] == null || selectedTitle[1].equals("")) {
+                addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
+                        marker.getTitle()), false);
+                marker.remove();
+                selectedTitle[0] = "";
+                Log.d(TAG, "제목 초기화");
+            }else if(marker.getTitle().equals(selectedTitle[1])){
+                addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
+                        marker.getTitle()), false);
+                marker.remove();
+                selectedTitle[1] = "";
+                Log.d(TAG, "제목 초기화");
+            }
+        }else if (marker != null && selectedCount < 2) { //선택한 마커 표시
+            addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
                     marker.getTitle()), true);
             marker.remove();
-            Log.d(TAG, "마커 선택changenull");
         }
     }
     @Override
@@ -239,9 +263,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(YJU, 17));
         //크기를 지정해서 비트맵으로 만들기 자동차
-        Bitmap bit = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.driving),
+        Bitmap car = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.driving),
                 60, 60, false);
-        mMap.addMarker(new MarkerOptions().position(YJU).icon(BitmapDescriptorFactory.fromBitmap(bit)));
+        mMap.addMarker(new MarkerOptions().position(YJU).icon(BitmapDescriptorFactory.fromBitmap(car)));
         //마커 클릭에 대한 이벤트 처리
         mMap.setOnMarkerClickListener(this);
 
@@ -271,7 +295,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public boolean onMarkerClick(Marker marker) {
         changeSelectedMarker(marker);
         deliveryInfo.setVisibility(View.VISIBLE);
-        if(selectedCount != 2) { selectedCount++; }
         //marker.getId()는 마커생성 순서
         startPoint.setText("출발지: " + selectedTitle[0]);
         endPoint.setText(selectedTitle[1] == null ? "도착지: " : "도착지: " + selectedTitle[1]);

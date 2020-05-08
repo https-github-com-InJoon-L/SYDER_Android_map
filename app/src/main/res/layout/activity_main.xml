@@ -8,6 +8,7 @@
     tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -16,11 +17,11 @@
             android:layout_width="0dp"
             android:layout_height="63dp"
             android:background="@color/colorPrimary"
-            android:textColor="#ffffff"
             android:gravity="center"
             android:text="SYDER"
-            android:textStyle="bold"
+            android:textColor="#ffffff"
             android:textSize="30sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -63,17 +64,16 @@
 
         <LinearLayout
             android:id="@+id/deliveryInfo"
-            android:layout_width="324dp"
+            android:layout_width="300dp"
             android:layout_height="112dp"
             android:layout_marginStart="10dp"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="500dp"
+            android:layout_marginBottom="15dp"
             android:background="@drawable/border_layout"
             android:orientation="vertical"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/frameLayout"
+            app:layout_constraintBottom_toBottomOf="@+id/constraint_layout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/send_title"
             tools:visibility="visible">
 
             <LinearLayout
