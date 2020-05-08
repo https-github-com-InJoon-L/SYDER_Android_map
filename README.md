@@ -27,5 +27,6 @@
 
 2020/05/09
 -------------
-* sendActivity api url 수정
+* sendActivity -> 현 volley의 실행순서 문제
 * 주문 출발지 도착지 지정 및 삭제 제한, 마커 커스텀 
+* sendActivity.xml 수정
