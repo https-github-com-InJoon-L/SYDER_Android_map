@@ -27,11 +27,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class activity_send extends AppCompatActivity {
-    private static final String TAG =  "activity_send";
+    private static final String TAG = "activity_send";
     private ActivitySendBinding binding;
     private RequestQueue requestQueue;
     static String receiverName;
     static int receiverID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,38 +43,41 @@ public class activity_send extends AppCompatActivity {
         binding.checkNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkSender();
-                Log.d("응답", receiverName + receiverID);
-                binding.senderName.setText(receiverName);
+                checkSender(new VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        Log.d("응답", receiverName + receiverID);
+                        binding.senderName.setText(receiverName);
+                    }
+                });
+
             }
         });
-
     }
 
 
-    public void checkSender(){
+    public void checkSender(final VolleyCallback callback) {
         String phoneNumber = binding.senderPhonenumber.getText().toString();
-        String url = "http://13.124.189.186/api/user/request?phone="+phoneNumber+"&guard=user";
+        String url = "http://13.124.189.186/api/user/request?phone=" + phoneNumber + "&guard=user";
 
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
 
             public void onResponse(String response) {
-                Log.d(TAG,"응답" + response);
+                Log.d(TAG, "응답" + response);
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
-                    JSONArray jsonReceiver = jsonResponse.getJSONArray("receiver");
-                    String receiverArray = jsonReceiver.getString(0);
-                    JSONObject jsonName = new JSONObject(receiverArray);
-                    int getID = jsonName.getInt("id");
-                    String getName = jsonName.getString("name");
+                    JSONObject jsonReceiver = jsonResponse.getJSONObject("receiver");
+                    int getID = jsonReceiver.getInt("id");
+                    String getName = jsonReceiver.getString("name");
                     receiverID = getID;
                     receiverName = getName;
-                    Log.d(TAG,"응답 : ID - " + receiverID + " Name - " + receiverName);
+                    Log.d(TAG, "응답 : ID - " + receiverID + " Name - " + receiverName);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                callback.onSuccess(response);
             }
-        },new Response.ErrorListener(){
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 NetworkResponse response = error.networkResponse;
@@ -81,7 +85,7 @@ public class activity_send extends AppCompatActivity {
                 Log.d(TAG, "에러" + jsonError);
             }
         }
-        ){
+        ) {
             public Map getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
@@ -92,7 +96,10 @@ public class activity_send extends AppCompatActivity {
 
         request.setShouldCache(false);
         requestQueue.add(request);
-        Log.i(TAG,"요청 보냄.");
+        Log.i(TAG, "요청 보냄.");
 
+    }
+    public interface VolleyCallback {
+        void onSuccess(String result);
     }
 }
