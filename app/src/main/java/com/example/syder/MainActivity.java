@@ -1,23 +1,17 @@
 package com.example.syder;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -26,8 +20,6 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.syder.databinding.ActivityMainBinding;
@@ -35,18 +27,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +46,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap           mMap;
     private SupportMapFragment  mapFragment;
     private RequestQueue mQueue;
-    ArrayList<LatLng> mMarkerPoints;
     private DrawerLayout drawerLayout;
     private View drawerView;
     private RequestQueue requestQueue;
@@ -66,9 +54,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private TextView timeAttack;
     private TextView tiemResult;
     private LinearLayout deliveryInfo;
-    private Marker selectedMarker;
+    private ArrayList<MarkerModel> markersInfo = new ArrayList<MarkerModel>();
     static int selectedCount = 0;
     static String[] selectedTitle = new String[2];
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,7 +121,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        mMarkerPoints = new ArrayList<>();
+
 
     }
 
@@ -174,7 +163,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     //addMarker 재수정
-    public Marker addMarker(MarkerModel markerModel, boolean isSelectedMarker) {
+    public void addMarker(MarkerModel markerModel, boolean isSelectedMarker) {
         LatLng position = new LatLng(markerModel.getLat(), markerModel.getLng());
         String title = markerModel.getTitle();
         MarkerOptions markerOptions = new MarkerOptions();
@@ -207,7 +196,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d(TAG, "제목 카운터 다운");
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(markerDraw));
         }
-        return mMap.addMarker(markerOptions);
+
+        markersInfo.add(new MarkerModel(mMap.addMarker(markerOptions), title));
+        Log.d(TAG, "배열 넣어진 크기 " + markersInfo.size());
     }
     // 서버에서 받아온 데이터로 마커 생성
     private void getMarkerItems() {
@@ -223,39 +214,55 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             Log.e(TAG, "에러 하이고" );
         }
 
-
+        Log.d(TAG, "배열 원래 크기 " + list.size());
         for (MarkerModel markerModel : list) {
             addMarker(markerModel, false);
         }
     }
     // 표시 마커 동작
     private void changeSelectedMarker(Marker marker) {
+        Log.d(TAG, "마커 정보 : " + marker);
+        Log.d(TAG, "배열 넣어진 크기 changeSelectesMarker" + markersInfo.size());
             // 선택했던 마커 다시 선택시 되돌리기 단, 순서대로
         if((selectedTitle[0] != null && selectedTitle[0].equals(marker.getTitle()))
         || (selectedTitle[1] != null && selectedTitle[1].equals(marker.getTitle()))) {
-            if(selectedTitle[1] == null || selectedTitle[1].equals("")) {
+            if(selectedTitle[1] == null) {
+                markersCheck(marker);
                 addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
                         marker.getTitle()), false);
                 marker.remove();
-                selectedTitle[0] = "";
+                selectedTitle[0] = null;
                 Log.d(TAG, "제목 초기화");
-            }else if(marker.getTitle().equals(selectedTitle[1])){
+            }else if(selectedTitle[1].equals(marker.getTitle())){
+                markersCheck(marker);
                 addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
                         marker.getTitle()), false);
                 marker.remove();
-                selectedTitle[1] = "";
+                selectedTitle[1] = null;
                 Log.d(TAG, "제목 초기화");
             }
         }else if (marker != null && selectedCount < 2) { //선택한 마커 표시
+            markersCheck(marker);
             addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
                     marker.getTitle()), true);
             marker.remove();
         }
     }
+    // 클릭한 마커의 정보가 있는지 체크
+    public void markersCheck(Marker marker) {
+        Log.d(TAG, "배열 넣어진 크기 markersCheck" + markersInfo.size());
+        for(int i = 0; i < markersInfo.size(); i++) {
+            Log.d(TAG, "마커배열들 " + markersInfo.get(i).getTitle());
+            if(markersInfo.get(i).getTitle().equals(marker.getTitle())) {
+                markersInfo.remove(i);
+            }
+        }
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         mMap = googleMap;
+
         getMarkerItems();
 
         //-----------------------------------------------------------------------
@@ -294,12 +301,40 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public boolean onMarkerClick(Marker marker) {
         changeSelectedMarker(marker);
-        deliveryInfo.setVisibility(View.VISIBLE);
+        changeSetVisible();
         //marker.getId()는 마커생성 순서
-        startPoint.setText("출발지: " + selectedTitle[0]);
-        endPoint.setText(selectedTitle[1] == null ? "도착지: " : "도착지: " + selectedTitle[1]);
-        Log.d(TAG, "선택 -> " + selectedMarker + " 마커 -> " + marker);
+        startPoint.setText(String.format("출발지: %s", selectedTitle[0]));
+        endPoint.setText(selectedTitle[1] == null ? "" : "도착지: " + selectedTitle[1]);
+
         Log.d(TAG, "마커 제발 되라 " + selectedCount + " 제목좀 " +selectedTitle[0] + selectedTitle[1]);
         return false;
+    }
+
+    public void changeSetVisible() {
+        if(selectedTitle[0] == null) {
+            deliveryInfo.setVisibility(View.GONE);
+        }else {
+            deliveryInfo.setVisibility(View.VISIBLE);
+        }
+
+        if(selectedTitle[1] != null) {
+            Log.d(TAG, "배열 넣어진 크기 visible" + markersInfo.size());
+            for(int i = 0; i < markersInfo.size(); i++) {
+                int count = 0;
+                Log.d(TAG, "배열크기" + markersInfo.size());
+                Log.d(TAG, "마커정보들과 선택된 제목" + markersInfo.get(i).getTitle());
+                Log.d(TAG, "마커정보들과 선택된 제목" + selectedTitle[0] + selectedTitle[1]);
+                for (String s : selectedTitle) {
+                    if (!markersInfo.get(i).getTitle().equals(s)) {
+                        count++;
+                        if(count == 2) markersInfo.get(i).getMarker().setVisible(false);
+                    }
+                }
+            }
+        }else {
+            for(int i = 0; i < markersInfo.size(); i++) {
+                markersInfo.get(i).getMarker().setVisible(true);
+            }
+        }
     }
 }

@@ -1,9 +1,17 @@
 package com.example.syder;
 
+import com.google.android.gms.maps.model.Marker;
+
 public class MarkerModel {
-    Double lat;
-    Double lng;
-    String title;
+    private Marker marker;
+    private Double lat;
+    private Double lng;
+    private String title;
+
+    public MarkerModel(Marker marker, String title) {
+        this.marker = marker;
+        this.title = title;
+    }
 
     public MarkerModel(Double lat,Double lng, String title) {
         this.lat = lat;
@@ -34,4 +42,8 @@ public class MarkerModel {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public Marker getMarker() { return marker; }
+
+    public void setMarker(Marker marker) { this.marker = marker; }
 }
