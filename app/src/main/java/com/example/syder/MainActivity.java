@@ -33,12 +33,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private ActivityMainBinding binding;
@@ -51,6 +57,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private RequestQueue requestQueue;
     private TextView startPoint;
     private TextView endPoint;
+    private Socket mSocket;
     private TextView timeAttack;
     private TextView tiemResult;
     private LinearLayout deliveryInfo;
@@ -75,12 +82,57 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         deliveryInfo = findViewById(R.id.deliveryInfo);
         ImageView menu_open = (ImageView)findViewById(R.id.menu_open);
 
+        try {
+            mSocket = IO.socket("http://소켓IP:3000/user");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        mSocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                mSocket.emit("message_from_user1", "hi");
+            }
+        }).on("location", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG, "뭐가 올까 " + args[0] + " 그자체 " + Arrays.toString(args));
+                JSONArray onLocationArray = (JSONArray) args[0];
+                Double getLat = 0.0;
+                Double getLng = 0.0;
+                int getBattery = 0;
+                try {
+                    for(int i = 0; i < onLocationArray.length(); i++) {
+                        JSONObject onLocationData = onLocationArray.getJSONObject(i);
+                        getLat = onLocationData.getDouble("lat");
+                        getLng = onLocationData.getDouble("lng");
+                        getBattery = onLocationData.getInt("battery");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Double finalGetLat = getLat;
+                Double finalGetLng = getLng;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bitmap car = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.driving),
+                                60, 60, false);
+                        mMap.addMarker(new MarkerOptions().position(
+                                new LatLng(finalGetLat, finalGetLng)).icon(BitmapDescriptorFactory.fromBitmap(car)));
+                    }
+                });
+            }
+        });
+        mSocket.connect();
+
         menu_open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 drawerLayout.openDrawer(drawerView);
             }
         });
+
 
         mQueue = Volley.newRequestQueue(this);
 
