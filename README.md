@@ -37,3 +37,8 @@
 * MarkerModel 생성자 추가
 * 구현된 마커와 레이아웃 가시성 동적으로 변경
 * volley 콜백 구현 중
+
+2020/05/12
+-------------
+* socket.io를 이용한 소켓통신 틀 구성
+* activity_send의 Handler로 volley 오류 수정
