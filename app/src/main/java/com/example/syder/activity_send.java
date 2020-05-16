@@ -1,30 +1,27 @@
 package com.example.syder;
 
-import androidx.appcompat.app.AppCompatActivity;
+        import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
+        import android.content.Intent;
+        import android.os.Bundle;
+        import android.util.Log;
+        import android.view.View;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.syder.databinding.ActivitySendBinding;
+        import com.android.volley.AuthFailureError;
+        import com.android.volley.NetworkResponse;
+        import com.android.volley.Request;
+        import com.android.volley.RequestQueue;
+        import com.android.volley.Response;
+        import com.android.volley.VolleyError;
+        import com.android.volley.toolbox.StringRequest;
+        import com.android.volley.toolbox.Volley;
+        import com.example.syder.databinding.ActivitySendBinding;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+        import org.json.JSONException;
+        import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
+        import java.util.HashMap;
+        import java.util.Map;
 
 public class activity_send extends AppCompatActivity {
     private static final String TAG = "activity_send";
@@ -32,6 +29,7 @@ public class activity_send extends AppCompatActivity {
     private RequestQueue requestQueue;
     static String receiverName;
     static int receiverID;
+    static int orderID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,20 +41,70 @@ public class activity_send extends AppCompatActivity {
         binding.checkNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkSender(new VolleyCallback() {
-                    @Override
-                    public void onSuccess(String result) {
-                        Log.d("응답", receiverName + receiverID);
-                        binding.senderName.setText(receiverName);
-                    }
-                });
+                checkSender();
+            }
+        });
 
+        binding.agreeRequest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                orderRequest();
             }
         });
     }
 
+    public void orderRequest() {
+        String url = "http://13.124.189.186/api/orders";
 
-    public void checkSender(final VolleyCallback callback) {
+        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "동의요청 보내면서 주문 정보 보내기");
+                Log.d(TAG, response);
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONObject jsonWaypoint = jsonObject.getJSONObject("waypoint");
+                    orderID = jsonWaypoint.getInt("id");
+                    Log.d(TAG, "화면 전환 id: " + orderID);
+
+                    Intent intent = new Intent(activity_send.this, ActivitySending.class);
+                    startActivity(intent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }) {
+            protected Map<String, String> getParams() throws AuthFailureError{
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("receiver", String.valueOf(receiverID));
+                params.put("order_cart", String.valueOf(1));    // 임시 값 일단 차가 없다
+                params.put("order_route", String.valueOf(1));   // 임시 값 경로가 없다
+                params.put("cartMove_needs", String.valueOf(0));   // 임시 값 일단 차가 없다
+                params.put("cartMove_route", String.valueOf(1));   // 임시 값 경로가 없다
+                params.put("guard", "user");
+
+                return params;
+            }
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
+
+                return params;
+            }
+        };
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        Log.i(TAG,"주문요청 보냄.");
+    }
+
+    public void checkSender() {
         String phoneNumber = binding.senderPhonenumber.getText().toString();
         String url = "http://13.124.189.186/api/user/request?phone=" + phoneNumber + "&guard=user";
 
@@ -75,7 +123,8 @@ public class activity_send extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                callback.onSuccess(response);
+                Log.d("응답", receiverName + receiverID);
+                binding.senderName.setText(receiverName);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -84,8 +133,7 @@ public class activity_send extends AppCompatActivity {
                 String jsonError = new String(response.data);
                 Log.d(TAG, "에러" + jsonError);
             }
-        }
-        ) {
+        }) {
             public Map getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
@@ -97,9 +145,5 @@ public class activity_send extends AppCompatActivity {
         request.setShouldCache(false);
         requestQueue.add(request);
         Log.i(TAG, "요청 보냄.");
-
-    }
-    public interface VolleyCallback {
-        void onSuccess(String result);
     }
 }

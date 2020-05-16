@@ -14,7 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".WaypointActivity"></activity>
+        <activity android:name=".ActivitySending"></activity>
+        <activity android:name=".WaypointActivity" />
         <activity android:name=".activity_send_wait" />
         <activity android:name=".activity_send" />
 

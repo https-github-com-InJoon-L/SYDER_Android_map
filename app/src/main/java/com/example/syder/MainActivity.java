@@ -62,6 +62,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private TextView tiemResult;
     private LinearLayout deliveryInfo;
     private ArrayList<MarkerModel> markersInfo = new ArrayList<MarkerModel>();
+    private LinearLayout timeLayout;
+    private Button qrCodeButton;
+    private boolean flag;
     static int selectedCount = 0;
     static String[] selectedTitle = new String[2];
 
@@ -80,51 +83,58 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         timeAttack = findViewById(R.id.timeAttack);
         tiemResult = findViewById(R.id.timeResult);
         deliveryInfo = findViewById(R.id.deliveryInfo);
+        timeLayout = findViewById(R.id.timeLayout);
+        qrCodeButton = findViewById(R.id.qrCodeButton);
         ImageView menu_open = (ImageView)findViewById(R.id.menu_open);
+        // 소켓 서버
+//        try {
+//            mSocket = IO.socket("http://13.124.124.67:80/user");
+//            Log.d(TAG, "ip주소 유");
+//            mSocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    mSocket.emit("message_from_user1", "hi");
+//                    Log.d(TAG, "소켓 서버 접속");
+//                }
+//            }).on("location", new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.d(TAG, "뭐가 올까 " + args[0] + " 그자체 " + Arrays.toString(args));
+//                    JSONArray onLocationArray = (JSONArray) args[0];
+//                    Double getLat = 0.0;
+//                    Double getLng = 0.0;
+//                    String getTitle = "";
+//
+//                    try {
+//                        for(int i = 0; i < onLocationArray.length(); i++) {
+//                            JSONObject onLocationData = onLocationArray.getJSONObject(i);
+//                            getLat = onLocationData.getDouble("lat");
+//                            getLng = onLocationData.getDouble("lng");
+//                        }
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Double finalGetLat = getLat;
+//                    Double finalGetLng = getLng;
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Bitmap car = Bitmap.createScaledBitmap(BitmapFactory
+//                                            .decodeResource(getResources(), R.drawable.driving),
+//                                    60, 60, false);
+//                            mMap.addMarker(new MarkerOptions().position(
+//                                    new LatLng(finalGetLat, finalGetLng)).title(getTitle)
+//                                    .icon(BitmapDescriptorFactory.fromBitmap(car)));
+//                        }
+//                    });
+//                }
+//            });
+//            mSocket.connect();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
-        try {
-            mSocket = IO.socket("http://소켓IP:3000/user");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        mSocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                mSocket.emit("message_from_user1", "hi");
-            }
-        }).on("location", new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                Log.d(TAG, "뭐가 올까 " + args[0] + " 그자체 " + Arrays.toString(args));
-                JSONArray onLocationArray = (JSONArray) args[0];
-                Double getLat = 0.0;
-                Double getLng = 0.0;
-                int getBattery = 0;
-                try {
-                    for(int i = 0; i < onLocationArray.length(); i++) {
-                        JSONObject onLocationData = onLocationArray.getJSONObject(i);
-                        getLat = onLocationData.getDouble("lat");
-                        getLng = onLocationData.getDouble("lng");
-                        getBattery = onLocationData.getInt("battery");
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                Double finalGetLat = getLat;
-                Double finalGetLng = getLng;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Bitmap car = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.driving),
-                                60, 60, false);
-                        mMap.addMarker(new MarkerOptions().position(
-                                new LatLng(finalGetLat, finalGetLng)).icon(BitmapDescriptorFactory.fromBitmap(car)));
-                    }
-                });
-            }
-        });
-        mSocket.connect();
 
         menu_open.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,10 +187,27 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //주문이 있는지 없는지 넣자 orders/check
+//        if(flag) {
+//            qrCodeButton.setVisibility(View.VISIBLE);
+//            timeLayout.setVisibility(View.VISIBLE);
+//            deliveryInfo.setVisibility(View.GONE);
+//            binding.send.setVisibility(View.GONE);
+//        }else {
+//            qrCodeButton.setVisibility(View.GONE);
+//            timeLayout.setVisibility(View.GONE);
+//            deliveryInfo.setVisibility(View.VISIBLE);
+//            binding.send.setVisibility(View.VISIBLE);
+//        }
+    }
+
     public void logout(){
         String url = "http://13.124.189.186/api/logout";
 
-        StringRequest logoutRequest = new StringRequest(Request.Method.POST, url,
+            StringRequest logoutRequest = new StringRequest(Request.Method.POST, url,
                 response->{
                     Log.i(TAG, response);
                     Toast.makeText(getApplicationContext(), "로그아웃 받아옴", Toast.LENGTH_SHORT).show();
@@ -193,7 +220,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 return params;
             }
 
-            public Map getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
 
@@ -214,6 +241,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(intent);
     }
 
+    public void onLocationChange() {
+
+    }
     //addMarker 재수정
     public void addMarker(MarkerModel markerModel, boolean isSelectedMarker) {
         LatLng position = new LatLng(markerModel.getLat(), markerModel.getLng());
@@ -276,8 +306,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "마커 정보 : " + marker);
         Log.d(TAG, "배열 넣어진 크기 changeSelectesMarker" + markersInfo.size());
             // 선택했던 마커 다시 선택시 되돌리기 단, 순서대로
-        if((selectedTitle[0] != null && selectedTitle[0].equals(marker.getTitle()))
-        || (selectedTitle[1] != null && selectedTitle[1].equals(marker.getTitle()))) {
+        if((selectedTitle[0] != null && selectedTitle[0].equals(marker.getTitle())) && !marker.getTitle().equals("car")
+        || (selectedTitle[1] != null && selectedTitle[1].equals(marker.getTitle()) && !marker.getTitle().equals("car"))) {
             if(selectedTitle[1] == null) {
                 markersCheck(marker);
                 addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
@@ -285,7 +315,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 marker.remove();
                 selectedTitle[0] = null;
                 Log.d(TAG, "제목 초기화");
-            }else if(selectedTitle[1].equals(marker.getTitle())){
+            }else if(selectedTitle[1].equals(marker.getTitle()) && !marker.getTitle().equals("car")){
                 markersCheck(marker);
                 addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
                         marker.getTitle()), false);
@@ -293,7 +323,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 selectedTitle[1] = null;
                 Log.d(TAG, "제목 초기화");
             }
-        }else if (marker != null && selectedCount < 2) { //선택한 마커 표시
+        }else if (marker != null && selectedCount < 2 && !marker.getTitle().equals("car")) { //선택한 마커 표시
             markersCheck(marker);
             addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
                     marker.getTitle()), true);
@@ -324,7 +354,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         //크기를 지정해서 비트맵으로 만들기 자동차
         Bitmap car = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.driving),
                 60, 60, false);
-        mMap.addMarker(new MarkerOptions().position(YJU).icon(BitmapDescriptorFactory.fromBitmap(car)));
+        mMap.addMarker(new MarkerOptions().position(YJU).title("car").icon(BitmapDescriptorFactory.fromBitmap(car)));
         //마커 클릭에 대한 이벤트 처리
         mMap.setOnMarkerClickListener(this);
 
@@ -363,7 +393,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void changeSetVisible() {
-        if(selectedTitle[0] == null) {
+        if(selectedTitle[0] ==  null || selectedTitle[1] == null) {
             deliveryInfo.setVisibility(View.GONE);
         }else {
             deliveryInfo.setVisibility(View.VISIBLE);

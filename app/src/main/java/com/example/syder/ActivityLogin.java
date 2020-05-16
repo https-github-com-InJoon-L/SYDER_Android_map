@@ -30,7 +30,7 @@ public class ActivityLogin extends AppCompatActivity {
     private ActivityLoginBinding binding;
     static RequestQueue requestQueue;
     static String url = "http://13.124.189.186/api/login";
-
+    static int id;
     static String loginResponse;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +71,14 @@ public class ActivityLogin extends AppCompatActivity {
                     String getToken = jsonResponse.getString("access_token");
 
                     JSONObject jsonUser = jsonResponse.getJSONObject("user");
+                    int getId = jsonUser.getInt("id");
                     String account = jsonUser.getString("account");
                     String name = jsonUser.getString("name");
                     String email = jsonUser.getString("email");
                     String phone = jsonUser.getString("phone");
 
                     loginResponse = getToken;
+                    id = getId;
 
                     Log.i(TAG,"account : " + account + "name : " + name + "email : " + email + "phone : " + phone);
                     Log.i(TAG,"token 값 응답 : " + loginResponse);

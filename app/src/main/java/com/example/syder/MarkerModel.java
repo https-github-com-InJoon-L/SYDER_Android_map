@@ -7,6 +7,7 @@ public class MarkerModel {
     private Double lat;
     private Double lng;
     private String title;
+    private String battery;
 
     public MarkerModel(Marker marker, String title) {
         this.marker = marker;
