@@ -42,3 +42,7 @@
 -------------
 * socket.io를 이용한 소켓통신 틀 구성
 * activity_send의 Handler로 volley 오류 수정
+
+2020/05/13
+-------------
+* activity_send의 Handler -> callback 인자로 수정
