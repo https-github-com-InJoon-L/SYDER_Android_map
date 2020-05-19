@@ -190,18 +190,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        //주문이 있는지 없는지 넣자 orders/check
-//        if(flag) {
-//            qrCodeButton.setVisibility(View.VISIBLE);
-//            timeLayout.setVisibility(View.VISIBLE);
-//            deliveryInfo.setVisibility(View.GONE);
-//            binding.send.setVisibility(View.GONE);
-//        }else {
-//            qrCodeButton.setVisibility(View.GONE);
-//            timeLayout.setVisibility(View.GONE);
-//            deliveryInfo.setVisibility(View.VISIBLE);
-//            binding.send.setVisibility(View.VISIBLE);
-//        }
     }
 
     public void logout(){
