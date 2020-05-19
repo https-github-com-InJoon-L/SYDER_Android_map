@@ -33,18 +33,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.socket.client.IO;
 import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private ActivityMainBinding binding;
@@ -86,6 +82,67 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         timeLayout = findViewById(R.id.timeLayout);
         qrCodeButton = findViewById(R.id.qrCodeButton);
         ImageView menu_open = (ImageView)findViewById(R.id.menu_open);
+
+        menu_open.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(drawerView);
+            }
+        });
+
+
+        mQueue = Volley.newRequestQueue(this);
+
+        drawerLayout.setDrawerListener(listener);
+        drawerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+
+        Button menu_close = (Button)findViewById(R.id.menu_close);
+        menu_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.closeDrawers();
+            }
+        });
+
+        Button logout = (Button) findViewById(R.id.button_logout);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logout();
+                Log.i(TAG,"토큰 값" + ActivityLogin.loginResponse);
+                ActivityLogin.loginResponse = null;
+            }
+        });
+
+        binding.send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ActivitySend.class);
+                startActivity(intent);
+            }
+        });
+
+        mapFragment = (SupportMapFragment)getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+
+    }
+
+    @Override
+    protected  void onStop() {
+        super.onStop();
+//        mSocket.disconnect();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         // 소켓 서버
 //        try {
 //            mSocket = IO.socket("http://13.124.124.67:80/user");
@@ -133,63 +190,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-
-
-
-        menu_open.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(drawerView);
-            }
-        });
-
-
-        mQueue = Volley.newRequestQueue(this);
-
-        drawerLayout.setDrawerListener(listener);
-        drawerView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
-
-        Button menu_close = (Button)findViewById(R.id.menu_close);
-        menu_close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.closeDrawers();
-            }
-        });
-
-        Button logout = (Button) findViewById(R.id.button_logout);
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                logout();
-                Log.i(TAG,"토큰 값" + ActivityLogin.loginResponse);
-                ActivityLogin.loginResponse = null;
-            }
-        });
-
-        binding.send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, activity_send.class);
-                startActivity(intent);
-            }
-        });
-
-        mapFragment = (SupportMapFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         //주문이 있는지 없는지 넣자 orders/check
 //        if(flag) {
 //            qrCodeButton.setVisibility(View.VISIBLE);
@@ -286,8 +286,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private void getMarkerItems() {
         ArrayList<MarkerModel> list = new ArrayList<MarkerModel>();
         try {
-            for (int i = 0; i < WaypointActivity.jsonWaypointArray.length(); i++) {
-                JSONObject result = WaypointActivity.jsonWaypointArray.getJSONObject(i);
+            for (int i = 0; i < ActivityWaypoint.jsonWaypointArray.length(); i++) {
+                JSONObject result = ActivityWaypoint.jsonWaypointArray.getJSONObject(i);
                 list.add(new MarkerModel(result.getDouble("lat"), result.getDouble("lng"),
                         result.getString("name")));
             }

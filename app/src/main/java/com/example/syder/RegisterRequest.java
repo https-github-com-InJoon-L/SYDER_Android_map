@@ -8,13 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class registerRequest extends StringRequest {
+public class RegisterRequest extends StringRequest {
 
     // 서버 URL 설정(라라벨 연동)
     final static private String URL = "http://13.124.189.186/api/register/users";
     private Map<String, String> map;
 
-    public registerRequest(String account, String password, String password_confirmation, String name, String email, String phone, Response.Listener<String> listener){
+    public RegisterRequest(String account, String password, String password_confirmation, String name, String email, String phone, Response.Listener<String> listener){
         super(Method.POST, URL, listener, null);//해당 URL에 POST방식으로 파마미터들을 전송함
         map = new HashMap<>();
         map.put("account",               account);

@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.JsonWriter;
 import android.util.Log;
 import android.view.View;
 
@@ -17,10 +16,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.syder.databinding.ActivityLoginBinding;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +27,7 @@ public class ActivityLogin extends AppCompatActivity {
     private ActivityLoginBinding binding;
     static RequestQueue requestQueue;
     static String url = "http://13.124.189.186/api/login";
-    static int id;
+    static int orderId;
     static String loginResponse;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +35,7 @@ public class ActivityLogin extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.register.setOnClickListener(new View.OnClickListener() {
+        binding.loginRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ActivityLogin.this, ActivityRegister.class);
@@ -78,7 +75,7 @@ public class ActivityLogin extends AppCompatActivity {
                     String phone = jsonUser.getString("phone");
 
                     loginResponse = getToken;
-                    id = getId;
+                    orderId = getId;
 
                     Log.i(TAG,"account : " + account + "name : " + name + "email : " + email + "phone : " + phone);
                     Log.i(TAG,"token 값 응답 : " + loginResponse);
@@ -86,7 +83,7 @@ public class ActivityLogin extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 //------------------------------------------------------------------------------
-                Intent intent = new Intent(ActivityLogin.this, WaypointActivity.class);
+                Intent intent = new Intent(ActivityLogin.this, ActivityWaypoint.class);
                 startActivity(intent);
                 //-------------------------------------------------------------------------------
             }
@@ -103,6 +100,7 @@ public class ActivityLogin extends AppCompatActivity {
                 params.put("account", binding.loginID.getText().toString());
                 params.put("password",  binding.loginPassword.getText().toString());
                 params.put("provider", "users");
+                params.put("fcm_token", binding.loginID.getText().toString());
                 return params;
             }
         };

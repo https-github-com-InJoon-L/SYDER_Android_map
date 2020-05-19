@@ -30,8 +30,8 @@ public class ActivityRegister extends AppCompatActivity {
 
     private static final String TAG =  "activity_register";
 
-    private EditText edit_ID, edit_password, edit_password_check, edit_name, edit_email, edit_phonenumber;
-    private Button btn_register;
+    private EditText create_ID, create_password, create_password_confirm, create_name, create_email, create_phonenumber;
+    private Button button_register;
 
     private ArrayAdapter adapter;
     private RequestQueue mQueue;
@@ -45,30 +45,30 @@ public class ActivityRegister extends AppCompatActivity {
         mQueue = Volley.newRequestQueue(this);
 
         // 아이디 값 찾아주기
-        edit_ID              = (EditText)findViewById(R.id.edit_ID);
-        edit_password        = (EditText)findViewById(R.id.edit_password);
-        edit_password_check  = (EditText)findViewById(R.id.edit_password_confirm);
-        edit_name            = (EditText)findViewById(R.id.edit_name);
-        edit_email           = (EditText)findViewById(R.id.edit_email);
-        edit_phonenumber     = (EditText)findViewById(R.id.edit_phonenumber);
-        btn_register         = (Button)findViewById(R.id.register_button);
+        create_ID = (EditText)findViewById(R.id.create_ID);
+        create_password = (EditText)findViewById(R.id.create_password);
+        create_password_confirm = (EditText)findViewById(R.id.create_password_confirm);
+        create_name = (EditText)findViewById(R.id.create_name);
+        create_email = (EditText)findViewById(R.id.create_email);
+        create_phonenumber     = (EditText)findViewById(R.id.create_phonenumber);
+        button_register = (Button)findViewById(R.id.button_register);
 
 
         //회원 가입 버튼이 눌렸을때
-        btn_register.setOnClickListener(new View.OnClickListener() {
+        button_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG,"회원가입 버튼을 눌렀습니다.");
 
                 // EditText에 현재 입력되어있는 값을 get 해온다.
-                String account = edit_ID.getText().toString();
-                String password = edit_password.getText().toString();
-                String password_confirmation = edit_password_check.getText().toString();
-                String name = edit_name.getText().toString();
+                String account = create_ID.getText().toString();
+                String password = create_password.getText().toString();
+                String password_confirmation = create_password_confirm.getText().toString();
+                String name = create_name.getText().toString();
 //                String birthday = textView_birthday.getText().toString();
 //                String gender = spinner.getSelectedItem().toString();
-                String email = edit_email.getText().toString();
-                String phone = edit_phonenumber.getText().toString();
+                String email = create_email.getText().toString();
+                String phone = create_phonenumber.getText().toString();
 
 
                 //한칸이라도 빠뜨렸을 경우
@@ -113,7 +113,7 @@ public class ActivityRegister extends AppCompatActivity {
                 };//Response.Listener 완료
 
 //                 서버로 Volley를 이용해서 요청을 함.
-                registerRequest registerRequest = new registerRequest(account, password, password, name, email, phone, responseListener);
+                RegisterRequest registerRequest = new RegisterRequest(account, password, password, name, email, phone, responseListener);
                 RequestQueue queue = Volley.newRequestQueue(ActivityRegister.this);
                 queue.add(registerRequest);
 

@@ -1,7 +1,6 @@
 package com.example.syder;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,11 +19,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WaypointActivity extends AppCompatActivity {
+public class ActivityWaypoint extends AppCompatActivity {
 
     private static String TAG = "waypoint_activity";
     private ActivityWaypointBinding binding;
@@ -39,7 +37,7 @@ public class WaypointActivity extends AppCompatActivity {
 
         requestQueue =  Volley.newRequestQueue(this);
         makeRequest();
-        Intent intent = new Intent(WaypointActivity.this, MainActivity.class);
+        Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
         startActivity(intent);
         finish();
     }

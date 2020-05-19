@@ -14,10 +14,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ActivitySending"></activity>
-        <activity android:name=".WaypointActivity" />
-        <activity android:name=".activity_send_wait" />
-        <activity android:name=".activity_send" />
+        <activity android:name=".ActivityScanQR"></activity>
+        <activity android:name=".ActivityMakeQRCode" />
+        <activity android:name=".ActivitySending" />
+        <activity android:name=".ActivityWaypoint" />
+        <activity android:name=".ActivityWait" />
+        <activity android:name=".ActivitySend" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
