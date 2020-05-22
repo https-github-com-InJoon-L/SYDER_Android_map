@@ -54,56 +54,57 @@ public class ActivitySend extends AppCompatActivity {
         });
     }
 
-//    public void orderRequest() {
-//        String url = "http://13.124.189.186/api/orders";
-//
-//        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-//            @Override
-//            public void onResponse(String response) {
-//                Log.d(TAG, "동의요청 보내면서 주문 정보 보내기");
-//                Log.d(TAG, response);
-//                try {
-//                    JSONObject jsonObject = new JSONObject(response);
-//                    JSONObject jsonWaypoint = jsonObject.getJSONObject("waypoint");
-//                    orderID = jsonWaypoint.getInt("id");
-//                    Log.d(TAG, "화면 전환 id: " + orderID);
-//
-//                    Intent intent = new Intent(activity_send.this, ActivitySending.class);
-//                    startActivity(intent);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//
-//            }
-//        }) {
-//            protected Map<String, String> getParams() throws AuthFailureError{
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put("receiver", String.valueOf(receiverID));
-//                params.put("order_cart", String.valueOf(1));    // 임시 값 일단 차가 없다
-//                params.put("order_route", String.valueOf(1));   // 임시 값 경로가 없다
-//                params.put("cartMove_needs", String.valueOf(0));   // 임시 값 일단 차가 없다
-//                params.put("cartMove_route", String.valueOf(1));   // 임시 값 경로가 없다
-//                params.put("guard", "user");
-//
-//                return params;
-//            }
-//
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
-//
-//                return params;
-//            }
-//        };
-//        request.setShouldCache(false);
-//        requestQueue.add(request);
-//        Log.i(TAG,"주문요청 보냄.");
-//    }
+    public void orderRequest() {
+        String url = "http://13.124.189.186/api/orders";
+
+        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "동의요청 보내면서 주문 정보 보내기");
+                Log.d(TAG, response);
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONObject jsonWaypoint = jsonObject.getJSONObject("waypoint");
+                    orderID = jsonWaypoint.getInt("id");
+                    Log.d(TAG, "화면 전환 id: " + orderID);
+
+                    Intent intent = new Intent(ActivitySend.this, ActivitySending.class);
+                    startActivity(intent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }) {
+            protected Map<String, String> getParams() throws AuthFailureError{
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("receiver", String.valueOf(receiverID));
+                params.put("order_cart", String.valueOf(1));    // 임시 값 일단 차가 없다
+                params.put("order_route", String.valueOf(1));   // 임시 값 경로가 없다
+                params.put("reverse_direction", String.valueOf(1));
+                params.put("cartMove_needs", String.valueOf(1));   // 임시 값 일단 차가 없다
+                params.put("cartMove_route", String.valueOf(1));   // 임시 값 경로가 없다
+                params.put("guard", "user");
+
+                return params;
+            }
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
+
+                return params;
+            }
+        };
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        Log.i(TAG,"주문요청 보냄.");
+    }
 
     public void checkSender() {
         String phoneNumber = binding.senderPhonenumber.getText().toString();

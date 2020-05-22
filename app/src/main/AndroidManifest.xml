@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.syder">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -14,13 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ActivityScanQR"></activity>
+        <activity android:name=".ActivityOrdering"></activity>
+        <activity android:name=".ActivityScanQR" />
         <activity android:name=".ActivityMakeQRCode" />
         <activity android:name=".ActivitySending" />
         <activity android:name=".ActivityWaypoint" />
         <activity android:name=".ActivityWait" />
         <activity android:name=".ActivitySend" />
-
+        <activity android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="fullSensor"
+            tools:replace="screenOrientation"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA6MM4ECCWyPRv_7mi3adLTJJQDScnKpXY" />

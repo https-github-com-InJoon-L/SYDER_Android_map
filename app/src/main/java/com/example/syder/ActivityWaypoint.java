@@ -27,7 +27,9 @@ public class ActivityWaypoint extends AppCompatActivity {
     private static String TAG = "waypoint_activity";
     private ActivityWaypointBinding binding;
     private RequestQueue requestQueue;
+    private boolean flag;
     static JSONArray jsonWaypointArray;
+    static JSONArray jsonRouteArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +38,13 @@ public class ActivityWaypoint extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         requestQueue =  Volley.newRequestQueue(this);
-        makeRequest();
-        Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        waypointRequest();
+        routeRequest();
+        orderCheck();
+
     }
 
-    public void makeRequest() {
+    public void waypointRequest() {
         String url = "http://13.124.189.186/api/waypoints?guard=user";
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             public void onResponse(String response) {
@@ -68,8 +70,83 @@ public class ActivityWaypoint extends AppCompatActivity {
                 return params;
             }
         };
+
         request.setShouldCache(false);
         requestQueue.add(request);
         Log.d(TAG, "way요청보냄");
+    }
+
+    public void routeRequest() {
+        String url = "http://13.124.189.186/api/routes?guard=user";
+        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            public void onResponse(String response) {
+                Log.d(TAG,"경로" + response);
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    jsonRouteArray = jsonResponse.getJSONArray("routes");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "에러 하이고" );
+                }
+            }
+        },new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG,"에러 -> " + error.getMessage());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError{
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization" , "Bearer " + ActivityLogin.loginResponse);
+                return params;
+            }
+        };
+
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        Log.d(TAG, "route요청보냄");
+    }
+
+    public void orderCheck() {
+        String url = "http://13.124.189.186/api/orders/check?guard=user";
+        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            public void onResponse(String response) {
+                Log.d(TAG,"경로" + response);
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    JSONArray jsonArrays = jsonResponse.getJSONArray("order");
+                    flag = jsonResponse.getBoolean("availability");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "에러 하이고" );
+                }
+                if(flag) {
+                    Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else {
+                    Intent intent = new Intent(ActivityWaypoint.this, ActivityOrdering.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        },new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG,"에러 -> " + error.getMessage());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError{
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization" , "Bearer " + ActivityLogin.loginResponse);
+                return params;
+            }
+        };
+
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        Log.d(TAG, "route요청보냄");
     }
 }

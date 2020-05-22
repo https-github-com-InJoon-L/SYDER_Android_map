@@ -58,9 +58,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private TextView tiemResult;
     private LinearLayout deliveryInfo;
     private ArrayList<MarkerModel> markersInfo = new ArrayList<MarkerModel>();
-    private LinearLayout timeLayout;
-    private Button qrCodeButton;
-    private boolean flag;
     static int selectedCount = 0;
     static String[] selectedTitle = new String[2];
 
@@ -79,8 +76,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         timeAttack = findViewById(R.id.timeAttack);
         tiemResult = findViewById(R.id.timeResult);
         deliveryInfo = findViewById(R.id.deliveryInfo);
-        timeLayout = findViewById(R.id.timeLayout);
-        qrCodeButton = findViewById(R.id.qrCodeButton);
         ImageView menu_open = (ImageView)findViewById(R.id.menu_open);
 
         menu_open.setOnClickListener(new View.OnClickListener() {
@@ -241,11 +236,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         markerOptions.position(position);
 
         Bitmap markerDraw = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_place_black_18dp),
-                80, 80, false);
+                100, 100, false);
         Bitmap markerDrawSelected_1= Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_pin_drop_white_24dp),
-                80, 80, false);
+                100, 100, false);
         Bitmap markerDrawSelected_2= Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_pin_drop_black_24dp),
-                80, 80, false);
+                100, 100, false);
 
 //         클릭시 아이콘 배치할겨
         if(isSelectedMarker) {

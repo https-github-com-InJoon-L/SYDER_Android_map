@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "366544015990",
+    "firebase_url": "https://syder-a0944.firebaseio.com",
+    "project_id": "syder-a0944",
+    "storage_bucket": "syder-a0944.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366544015990:android:8182cdf3e52807186f8557",
+        "android_client_info": {
+          "package_name": "org.techtown.syder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "366544015990-43kra24040d4juhb76ims5jicmujdb8a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsetrla-UpMVVFo8KJuWT4d5R2wV0QIGs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "366544015990-43kra24040d4juhb76ims5jicmujdb8a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
