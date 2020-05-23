@@ -84,3 +84,4 @@
 * api orderCheck 적용
 * RouteModel 생성
 * api order/register 데이터 유동적으로 보내기
+* Fcm token을 이용한 알림 적용 -> 아직 임의의 값만 
