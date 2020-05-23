@@ -76,5 +76,5 @@
 
 2020/05/23
 ---------------
-* api orders/show 적용 -> 알고리즘 미흡
+* api orders/show 적용 -> 상황에 따른 동작 구현
 * api orders/check 알고리즘 수정 -> 알림 시 알고리즘 
