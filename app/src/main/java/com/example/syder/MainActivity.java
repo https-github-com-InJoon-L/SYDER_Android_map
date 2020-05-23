@@ -230,7 +230,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void logout(){
         String url = "http://13.124.189.186/api/logout";
 
-            StringRequest logoutRequest = new StringRequest(Request.Method.POST, url,
+        StringRequest logoutRequest = new StringRequest(Request.Method.POST, url,
                 response->{
                     Log.i(TAG, response);
                     Toast.makeText(getApplicationContext(), "로그아웃 받아옴", Toast.LENGTH_SHORT).show();
@@ -285,8 +285,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         for (int i = 0; i < list.size(); i++) {
             Log.d(TAG, "마커 제목들" + selectedTitle[0] +"  " + list.get(i).getTitle());
             if(selectedTitle[0].equals(list.get(i).getTitle())) {
-                   startingId = list.get(i).getId();
-                   Log.d(TAG, "d---" + list.get(i).getId());
+                startingId = list.get(i).getId();
+                Log.d(TAG, "d---" + list.get(i).getId());
             }
         }
         Log.d(TAG, "출발지 id값 " + startingId);
@@ -421,9 +421,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private void changeSelectedMarker(Marker marker) {
         Log.d(TAG, "마커 정보 : " + marker);
         Log.d(TAG, "배열 넣어진 크기 changeSelectesMarker" + markersInfo.size());
-            // 선택했던 마커 다시 선택시 되돌리기 단, 순서대로
+        // 선택했던 마커 다시 선택시 되돌리기 단, 순서대로
         if((selectedTitle[0] != null && selectedTitle[0].equals(marker.getTitle())) && !marker.getTitle().equals("car")
-        || (selectedTitle[1] != null && selectedTitle[1].equals(marker.getTitle()) && !marker.getTitle().equals("car"))) {
+                || (selectedTitle[1] != null && selectedTitle[1].equals(marker.getTitle()) && !marker.getTitle().equals("car"))) {
             if(selectedTitle[1] == null) {
                 markersCheck(marker);
                 addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,

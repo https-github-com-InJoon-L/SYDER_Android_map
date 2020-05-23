@@ -1,11 +1,13 @@
 package com.example.syder;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -15,6 +17,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.syder.databinding.ActivityLoginBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +36,7 @@ public class ActivityLogin extends AppCompatActivity {
     static String url = "http://13.124.189.186/api/login";
     static int orderId;
     static String loginResponse;
+    static String FCMtoken;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +62,25 @@ public class ActivityLogin extends AppCompatActivity {
             requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
 
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.i("FCM", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        FCMtoken = task.getResult().getToken();
+
+                        // Log and toast
+                        String msg = getString(R.string.msg_token_fmt, FCMtoken);
+                        Log.i("FCM", msg);
+                        Toast.makeText(ActivityLogin.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
     }
 
     public void makeRequest() {
@@ -100,7 +127,7 @@ public class ActivityLogin extends AppCompatActivity {
                 params.put("account", binding.loginID.getText().toString());
                 params.put("password",  binding.loginPassword.getText().toString());
                 params.put("provider", "users");
-                params.put("fcm_token", binding.loginID.getText().toString());
+                params.put("fcm_token", FCMtoken);
                 return params;
             }
         };

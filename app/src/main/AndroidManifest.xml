@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,18 +17,28 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity android:name=".ActivityOrdering"></activity>
+        <!-- // QR코드 세로로 뜨게하기 -->
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="fullSensor"
+            tools:replace="screenOrientation" />
+        <activity android:name=".ActivityReceiverAgree" />
         <activity android:name=".ActivityScanQR" />
         <activity android:name=".ActivityMakeQRCode" />
         <activity android:name=".ActivitySending" />
         <activity android:name=".ActivityWaypoint" />
         <activity android:name=".ActivityWait" />
         <activity android:name=".ActivitySend" />
-        <activity android:name="com.journeyapps.barcodescanner.CaptureActivity"
-            android:screenOrientation="fullSensor"
-            tools:replace="screenOrientation"/>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA6MM4ECCWyPRv_7mi3adLTJJQDScnKpXY" />
+            android:value="AIzaSyD9znzwVgwkNjW52r31KtKwYNPlRlDQz0k" />
+        <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
 
         <activity android:name=".ActivityLogin">
             <intent-filter>
@@ -36,10 +47,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ActivityRegister" />
+        <activity android:name=".ActivityRegister" /> <!-- // 타이틀바 없음 -->
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" /> <!-- // FCM 서비스 -->
+        <service android:name=".MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

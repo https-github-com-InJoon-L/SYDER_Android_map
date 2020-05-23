@@ -113,7 +113,7 @@ public class ActivityRegister extends AppCompatActivity {
                 };//Response.Listener 완료
 
 //                 서버로 Volley를 이용해서 요청을 함.
-                RegisterRequest registerRequest = new RegisterRequest(account, password, password, name, email, phone, responseListener);
+                registerRequest registerRequest = new registerRequest(account, password, password, name, email, phone, responseListener);
                 RequestQueue queue = Volley.newRequestQueue(ActivityRegister.this);
                 queue.add(registerRequest);
 

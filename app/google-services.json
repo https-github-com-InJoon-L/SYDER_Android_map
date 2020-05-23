@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "366544015990",
-    "firebase_url": "https://syder-a0944.firebaseio.com",
-    "project_id": "syder-a0944",
-    "storage_bucket": "syder-a0944.appspot.com"
+    "project_number": "239323426838",
+    "firebase_url": "https://syder-f6710.firebaseio.com",
+    "project_id": "syder-f6710",
+    "storage_bucket": "syder-f6710.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:366544015990:android:8182cdf3e52807186f8557",
+        "mobilesdk_app_id": "1:239323426838:android:fc56828d1d02c63c2f4537",
         "android_client_info": {
-          "package_name": "org.techtown.syder"
+          "package_name": "com.example.syder"
         }
       },
       "oauth_client": [
         {
-          "client_id": "366544015990-43kra24040d4juhb76ims5jicmujdb8a.apps.googleusercontent.com",
+          "client_id": "239323426838-0a40d018lrl6b0gfanfam9spfifvctfv.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAsetrla-UpMVVFo8KJuWT4d5R2wV0QIGs"
+          "current_key": "AIzaSyCXaRP5oyogRA2Rquxl-Qvlh7hqw3WbjYU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "366544015990-43kra24040d4juhb76ims5jicmujdb8a.apps.googleusercontent.com",
+              "client_id": "239323426838-0a40d018lrl6b0gfanfam9spfifvctfv.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

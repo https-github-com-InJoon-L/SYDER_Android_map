@@ -7,13 +7,14 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.syder.databinding.ActivitySendWaitBinding;
+import com.example.syder.databinding.ActivityReceiverAgreeBinding;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,62 +22,55 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ActivityWait extends AppCompatActivity {
-    private ActivitySendWaitBinding binding;
-    private static final String TAG = "activity_wait";
+public class ActivityReceiverAgree extends AppCompatActivity {
+    private ActivityReceiverAgreeBinding binding;
     private RequestQueue requestQueue;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivitySendWaitBinding.inflate(getLayoutInflater());
+        requestQueue = Volley.newRequestQueue(this);
+        binding = ActivityReceiverAgreeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        requestQueue =  Volley.newRequestQueue(this);
-        binding.buttonQRcodeCheck.setOnClickListener(v->{
-            authCheck();
-        });
-
-        binding.buttonMakeQRCode.setOnClickListener(v->{
-            Intent intent = new Intent (this, ActivityMakeQRCode.class);
-            startActivity(intent);
+        binding.btnAgreeTrue.setOnClickListener(v->{
+            agreeResult();
         });
     }
 
-    public void authCheck() {
-        //ActivityLogin.orderId
-        String url = "http://13.124.189.186/api/authCheck?guard=user";
+    public void agreeResult() {
+
+        String url = "http://13.124.189.186/api/consent/response?order_id=3&consent_or_not=0&guard=user";
+
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+
             public void onResponse(String response) {
-                int authId = 0;
-                Log.d(TAG,"auth 체크" + response);
+                Log.d("FCM알림", "응답" + response);
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
-                    authId = jsonResponse.getInt("id");
+                    String jsonAgree = jsonResponse.getString("message");
+                    String jsonReciever_token = jsonResponse.getString("reciever_token");
+                    Log.d("FCM알림", "동의요청" + jsonAgree);
+                    Log.d("FCM알림", "토큰" + jsonReciever_token);
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Log.e(TAG, "auth 체크 에러 하이고" );
-                }
-                if(authId == ActivityLogin.orderId) {
-                    startActivity(new Intent(getApplicationContext(), ActivityScanQR.class));
                 }
             }
-        },new Response.ErrorListener(){
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG,"auth 체크 에러 -> " + error.getMessage());
+                NetworkResponse response = error.networkResponse;
+                String jsonError = new String(response.data);
+                Log.d("FCM알림", "에러" + jsonError);
             }
         }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("Authorization" , "Bearer " + ActivityLogin.loginResponse);
+                params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
                 return params;
             }
         };
-
         request.setShouldCache(false);
         requestQueue.add(request);
-        Log.d(TAG, "auth 체크 요청보냄");
+        Log.i("FCM알림", "요청 보냄.");
     }
 }
