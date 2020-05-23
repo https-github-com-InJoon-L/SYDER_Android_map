@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -56,12 +57,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private TextView startPoint;
     private TextView endPoint;
     private Socket mSocket;
-    private TextView timeAttack;
-    private TextView tiemResult;
     private LinearLayout deliveryInfo;
     private ArrayList<MarkerModel> markersInfo = new ArrayList<MarkerModel>();
+    private ArrayList<MarkerModel> list = new ArrayList<MarkerModel>();
+    private boolean moveNeed;
+    private static String startingId;
+    private boolean setVisibilityInfo;
     static int selectedCount = 0;
     static String[] selectedTitle = new String[2];
+
+    public MainActivity() {
+    }
 
 
     @Override
@@ -75,8 +81,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         drawerView = (View) findViewById(R.id.drawer);
         startPoint = findViewById(R.id.startPoint);
         endPoint = findViewById(R.id.endPoint);
-        timeAttack = findViewById(R.id.timeAttack);
-        tiemResult = findViewById(R.id.timeResult);
         deliveryInfo = findViewById(R.id.deliveryInfo);
         ImageView menu_open = (ImageView)findViewById(R.id.menu_open);
 
@@ -227,27 +231,55 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void orderShowRequest() {
-        String url = "http://13.124.189.186/api/orders/show?startingid=1&guard=user";
+        Log.d(TAG, "마커정보 size " + list.size());
+        for (int i = 0; i < list.size(); i++) {
+            Log.d(TAG, "마커 제목들" + selectedTitle[0] +"  " + list.get(i).getTitle());
+            if(selectedTitle[0].equals(list.get(i).getTitle())) {
+                   startingId = list.get(i).getId();
+                   Log.d(TAG, "d---" + list.get(i).getId());
+            }
+        }
+        Log.d(TAG, "출발지 id값 " + startingId);
+        String url = "http://13.124.189.186/api/orders/show?startingId=" + startingId + "&guard=user";
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @SuppressLint("SetTextI18n")
             public void onResponse(String response) {
-                Log.d(TAG,"맵" + response);
+                int moveNeedTime = 0;
+                int remainOrder = 0;
+                String getMsg = null;
+                Log.d(TAG,"가용차량" + response);
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
-                    String getMsg = jsonResponse.getString("message");   //모든경우
-                    String getCartId = jsonResponse.getString("cart_id"); //가용차량 있을때만
-                    int getMoveTime = jsonResponse.getInt("cartMove_time"); // 가용차량 있고 움직일때만
-                    int getRouteId = jsonResponse.getInt("cartMove_route"); // 가용차량 있고 움직일때만
-                    boolean getMoveNeed = jsonResponse.getBoolean("cartMove_needs"); // 가용차량 있을때만
+                    getMsg = jsonResponse.getString("message");   //모든경우
+                    if(getMsg.equals("Cart is need to move")) {
+                        String getCartId = jsonResponse.getString("cart_id"); //가용차량 있을때만
+                        moveNeed = jsonResponse.getBoolean("cartMove_needs"); //가용차량 있을때만
+                        moveNeedTime = jsonResponse.getInt("cartMove_time"); // 가용차량 있고 움직일때만
+                        int getRouteId = jsonResponse.getInt("cartMove_route"); // 가용차량 있고 움직일때만
+                    }
+                    if(getMsg.equals("There is no available cart")) {
+                        remainOrder = jsonResponse.getInt("remain_order");
+                    }
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Log.e(TAG, "에러 하이고" );
+                    Log.e(TAG, "가용에러 하이고" );
+                }
+                if(getMsg.equals("There is no available cart")) {
+                    setVisibilityInfo = true;
+                    binding.watingNumber.setText("현재 대기열 : " + remainOrder);
+                }
+                if(moveNeed) {
+                    binding.timeAttack.setText("차량도착시간 | " + moveNeedTime + ":00");
+                }else {
+                    binding.timeAttack.setText("차량도착시간 | 00:00");
                 }
             }
         },new Response.ErrorListener(){
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG,"에러 -> " + error.getMessage());
+                Log.d(TAG,"가용에러 -> " + error.getMessage());
             }
         }) {
             @Override
@@ -306,7 +338,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
     // 서버에서 받아온 데이터로 마커 생성
     private void getMarkerItems() {
-        ArrayList<MarkerModel> list = new ArrayList<MarkerModel>();
         try {
             for (int i = 0; i < ActivityWaypoint.jsonWaypointArray.length(); i++) {
                 JSONObject result = ActivityWaypoint.jsonWaypointArray.getJSONObject(i);
@@ -416,9 +447,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void changeSetVisible() {
         if(selectedTitle[0] ==  null || selectedTitle[1] == null) {
-            deliveryInfo.setVisibility(View.GONE);
+            binding.deliveryInfo.setVisibility(View.GONE);
+            binding.deliveryInfoWating.setVisibility(View.GONE);
         }else {
-            deliveryInfo.setVisibility(View.VISIBLE);
+            if(setVisibilityInfo)
+                binding.deliveryInfoWating.setVisibility(View.VISIBLE);
+            else
+                binding.deliveryInfo.setVisibility(View.VISIBLE);
         }
 
         if(selectedTitle[1] != null) {

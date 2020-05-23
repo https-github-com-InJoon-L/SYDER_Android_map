@@ -91,13 +91,13 @@ public class ActivityWaypoint extends AppCompatActivity {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Log.e(TAG, "에러 하이고" );
+                    Log.e(TAG, "경로에러 하이고" );
                 }
             }
         },new Response.ErrorListener(){
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG,"에러 -> " + error.getMessage());
+                Log.d(TAG,"경로에러 -> " + error.getMessage());
             }
         }) {
             @Override
@@ -117,14 +117,14 @@ public class ActivityWaypoint extends AppCompatActivity {
         String url = "http://13.124.189.186/api/orders/check?guard=user";
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             public void onResponse(String response) {
-                Log.d(TAG,"경로" + response);
+                Log.d(TAG,"주문쳌" + response);
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
                     JSONArray jsonArrays = jsonResponse.getJSONArray("order");
                     flag = jsonResponse.getBoolean("availability");
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Log.e(TAG, "에러 하이고" );
+                    Log.e(TAG, "주문쳌에러 하이고" );
                 }
 //                if(flag) {
 //                    Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
