@@ -17,6 +17,7 @@ package com.example.syder;
         import com.android.volley.toolbox.Volley;
         import com.example.syder.databinding.ActivitySendBinding;
 
+        import org.json.JSONArray;
         import org.json.JSONException;
         import org.json.JSONObject;
 
@@ -48,10 +49,47 @@ public class ActivitySend extends AppCompatActivity {
         binding.callButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                orderRequest();
+                orderConsentRequest();
+            }
+        });
+    }
+
+    public void orderConsentRequest() {
+        String url = "http://13.124.189.186/api/consent/request?order_id=6&guard=user"; //주문 아이디 값 적용해야됨
+
+        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+
+            public void onResponse(String response) {
+                Log.d(TAG, "응답" + response);
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    String getMsg = jsonResponse.getString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 Intent intent = new Intent(ActivitySend.this, ActivitySending.class);
                 startActivity(intent);
             }
-        });
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                NetworkResponse response = error.networkResponse;
+                String jsonError = new String(response.data);
+                Log.d(TAG, "에러" + jsonError);
+            }
+        }) {
+            public Map getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
+
+                return params;
+            }
+        };
+
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        Log.i(TAG, "요청 보냄.");
     }
 
     public void orderRequest() {
@@ -63,9 +101,9 @@ public class ActivitySend extends AppCompatActivity {
                 Log.d(TAG, "동의요청 보내면서 주문 정보 보내기");
                 Log.d(TAG, response);
                 try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    JSONObject jsonWaypoint = jsonObject.getJSONObject("waypoint");
-                    orderID = jsonWaypoint.getInt("id");
+                    JSONObject jsonResponse = new JSONObject(response);
+                    JSONObject jsonOrder = jsonResponse.getJSONObject("order");
+                    orderID = jsonOrder.getInt("id");
                     Log.d(TAG, "화면 전환 id: " + orderID);
 
                     Intent intent = new Intent(ActivitySend.this, ActivitySending.class);

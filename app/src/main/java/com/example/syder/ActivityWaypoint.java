@@ -42,6 +42,9 @@ public class ActivityWaypoint extends AppCompatActivity {
         routeRequest();
         orderCheck();
 
+        Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     public void waypointRequest() {
@@ -52,6 +55,7 @@ public class ActivityWaypoint extends AppCompatActivity {
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
                     jsonWaypointArray = jsonResponse.getJSONArray("waypoints");
+                    Log.d(TAG, "d" + jsonWaypointArray.length());
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e(TAG, "에러 하이고" );
@@ -84,6 +88,7 @@ public class ActivityWaypoint extends AppCompatActivity {
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
                     jsonRouteArray = jsonResponse.getJSONArray("routes");
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e(TAG, "에러 하이고" );
@@ -121,15 +126,15 @@ public class ActivityWaypoint extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e(TAG, "에러 하이고" );
                 }
-                if(flag) {
-                    Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                }else {
-                    Intent intent = new Intent(ActivityWaypoint.this, ActivityOrdering.class);
-                    startActivity(intent);
-                    finish();
-                }
+//                if(flag) {
+//                    Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
+//                    startActivity(intent);
+//                    finish();
+//                }else {
+//                    Intent intent = new Intent(ActivityWaypoint.this, ActivityOrdering.class);
+//                    startActivity(intent);
+//                    finish();
+//                }
             }
         },new Response.ErrorListener(){
             @Override

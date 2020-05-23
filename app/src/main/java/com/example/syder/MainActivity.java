@@ -20,6 +20,8 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.syder.databinding.ActivityMainBinding;
@@ -224,13 +226,47 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(intent);
     }
 
-    public void onLocationChange() {
+    public void orderShowRequest() {
+        String url = "http://13.124.189.186/api/orders/show?startingid=1&guard=user";
+        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            public void onResponse(String response) {
+                Log.d(TAG,"맵" + response);
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    String getMsg = jsonResponse.getString("message");   //모든경우
+                    String getCartId = jsonResponse.getString("cart_id"); //가용차량 있을때만
+                    int getMoveTime = jsonResponse.getInt("cartMove_time"); // 가용차량 있고 움직일때만
+                    int getRouteId = jsonResponse.getInt("cartMove_route"); // 가용차량 있고 움직일때만
+                    boolean getMoveNeed = jsonResponse.getBoolean("cartMove_needs"); // 가용차량 있을때만
 
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "에러 하이고" );
+                }
+            }
+        },new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG,"에러 -> " + error.getMessage());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError{
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization" , "Bearer " + ActivityLogin.loginResponse);
+                return params;
+            }
+        };
+
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        Log.d(TAG, "way요청보냄");
     }
     //addMarker 재수정
     public void addMarker(MarkerModel markerModel, boolean isSelectedMarker) {
         LatLng position = new LatLng(markerModel.getLat(), markerModel.getLng());
         String title = markerModel.getTitle();
+        String idString = markerModel.getId();
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.title(title);
         markerOptions.position(position);
@@ -247,6 +283,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             if(selectedCount != 2) {
                 selectedTitle[selectedCount] = title;
                 selectedCount++;
+                if(selectedCount == 1) {
+                    orderShowRequest(); // 출발지 클릭시 실행
+                }
                 Log.d(TAG, "제목 설정 및 카운트 업");
             }
 
@@ -262,7 +301,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(markerDraw));
         }
 
-        markersInfo.add(new MarkerModel(mMap.addMarker(markerOptions), title));
+        markersInfo.add(new MarkerModel(mMap.addMarker(markerOptions), title, idString));
         Log.d(TAG, "배열 넣어진 크기 " + markersInfo.size());
     }
     // 서버에서 받아온 데이터로 마커 생성
@@ -272,7 +311,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             for (int i = 0; i < ActivityWaypoint.jsonWaypointArray.length(); i++) {
                 JSONObject result = ActivityWaypoint.jsonWaypointArray.getJSONObject(i);
                 list.add(new MarkerModel(result.getDouble("lat"), result.getDouble("lng"),
-                        result.getString("name")));
+                        result.getString("name"), result.getString("id")));
             }
         }catch (JSONException e) {
             e.printStackTrace();
@@ -294,14 +333,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             if(selectedTitle[1] == null) {
                 markersCheck(marker);
                 addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
-                        marker.getTitle()), false);
+                        marker.getTitle(), marker.getId()), false);
                 marker.remove();
                 selectedTitle[0] = null;
                 Log.d(TAG, "제목 초기화");
             }else if(selectedTitle[1].equals(marker.getTitle()) && !marker.getTitle().equals("car")){
                 markersCheck(marker);
                 addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
-                        marker.getTitle()), false);
+                        marker.getTitle(), marker.getId()), false);
                 marker.remove();
                 selectedTitle[1] = null;
                 Log.d(TAG, "제목 초기화");
@@ -309,7 +348,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }else if (marker != null && selectedCount < 2 && !marker.getTitle().equals("car")) { //선택한 마커 표시
             markersCheck(marker);
             addMarker(new MarkerModel(marker.getPosition().latitude, marker.getPosition().longitude,
-                    marker.getTitle()), true);
+                    marker.getTitle(), marker.getId()), true);
             marker.remove();
         }
     }

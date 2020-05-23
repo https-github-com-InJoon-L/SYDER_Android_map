@@ -33,7 +33,8 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
     private RequestQueue requestQueue;
     private SupportMapFragment mapFragment;
     private static int count;
-    private static final String TAG = "Activity_Ordering";
+    private static final String TAG = "activity_ordering";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +89,7 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
             for (int i = 0; i < ActivityWaypoint.jsonWaypointArray.length(); i++) {
                 JSONObject result = ActivityWaypoint.jsonWaypointArray.getJSONObject(i);
                 list.add(new MarkerModel(result.getDouble("lat"), result.getDouble("lng"),
-                        result.getString("name")));
+                        result.getString("name"),result.getString("id")));
             }
         }catch (JSONException e) {
             e.printStackTrace();
