@@ -73,3 +73,8 @@
 ---------------
 * api orders/check, routes 적용
 * 스토리보드에 나온 xml 완성
+
+2020/05/23
+---------------
+* api orders/show 적용 -> 알고리즘 미흡
+* api orders/check 알고리즘 수정 -> 알림 시 알고리즘 
