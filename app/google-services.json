@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "239323426838",
+    "firebase_url": "https://syder-f6710.firebaseio.com",
+    "project_id": "syder-f6710",
+    "storage_bucket": "syder-f6710.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:239323426838:android:fc56828d1d02c63c2f4537",
+        "android_client_info": {
+          "package_name": "com.example.syder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "239323426838-0a40d018lrl6b0gfanfam9spfifvctfv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXaRP5oyogRA2Rquxl-Qvlh7hqw3WbjYU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "239323426838-0a40d018lrl6b0gfanfam9spfifvctfv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
