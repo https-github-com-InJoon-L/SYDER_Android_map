@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class ActivityWaypoint extends AppCompatActivity {
     private static String TAG = "waypoint_activity";
     private ActivityWaypointBinding binding;
     private RequestQueue requestQueue;
-    private boolean flag;
+    private boolean flag = true;
     static JSONArray jsonWaypointArray;
     static JSONArray jsonRouteArray;
 
@@ -126,15 +127,15 @@ public class ActivityWaypoint extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e(TAG, "주문쳌에러 하이고" );
                 }
-//                if(flag) {
-//                    Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
-//                    startActivity(intent);
-//                    finish();
-//                }else {
-//                    Intent intent = new Intent(ActivityWaypoint.this, ActivityOrdering.class);
-//                    startActivity(intent);
-//                    finish();
-//                }
+                if(!flag) {
+                    Intent intent = new Intent(ActivityWaypoint.this, ActivityOrdering.class);
+                    startActivity(intent);
+                    finish();
+                }else {
+                    Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
             }
         },new Response.ErrorListener(){
             @Override

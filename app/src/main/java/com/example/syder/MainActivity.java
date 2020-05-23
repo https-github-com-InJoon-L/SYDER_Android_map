@@ -57,18 +57,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private TextView startPoint;
     private TextView endPoint;
     private Socket mSocket;
-    private LinearLayout deliveryInfo;
+    static ArrayList<RouteModel> routeList = new ArrayList<RouteModel>();
     private ArrayList<MarkerModel> markersInfo = new ArrayList<MarkerModel>();
     private ArrayList<MarkerModel> list = new ArrayList<MarkerModel>();
-    private boolean moveNeed;
-    private static String startingId;
+    static boolean moveNeed;
+    static String moveNeedRoute = "0";
+    static String startingId;
+    static String arrivalId;
     private boolean setVisibilityInfo;
     static int selectedCount = 0;
+    static String cartId;
     static String[] selectedTitle = new String[2];
-
-    public MainActivity() {
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +80,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         drawerView = (View) findViewById(R.id.drawer);
         startPoint = findViewById(R.id.startPoint);
         endPoint = findViewById(R.id.endPoint);
-        deliveryInfo = findViewById(R.id.deliveryInfo);
         ImageView menu_open = (ImageView)findViewById(R.id.menu_open);
 
         menu_open.setOnClickListener(new View.OnClickListener() {
@@ -123,8 +121,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         binding.send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ActivitySend.class);
-                startActivity(intent);
+                authCheck();
             }
         });
 
@@ -193,6 +190,43 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 //        }
     }
 
+    public void authCheck() {
+        //ActivityLogin.orderId
+        String url = "http://13.124.189.186/api/authCheck?guard=user";
+        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            public void onResponse(String response) {
+                int authId = 0;
+                Log.d(TAG,"auth 체크" + response);
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    authId = jsonResponse.getInt("id");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "auth 체크 에러 하이고" );
+                }
+                if(authId == ActivityLogin.orderId) {
+                    Intent intent = new Intent(MainActivity.this, ActivitySend.class);
+                    startActivity(intent);
+                }
+            }
+        },new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG,"auth 체크 에러 -> " + error.getMessage());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError{
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization" , "Bearer " + ActivityLogin.loginResponse);
+                return params;
+            }
+        };
+
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        Log.d(TAG, "auth 체크 요청보냄");
+    }
     public void logout(){
         String url = "http://13.124.189.186/api/logout";
 
@@ -230,6 +264,22 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(intent);
     }
 
+    // 서버에서 받아온 데이터로 경로 저장
+    private void getRouteItems() {
+        try {
+            for (int i = 0; i < ActivityWaypoint.jsonWaypointArray.length(); i++) {
+                JSONObject result = ActivityWaypoint.jsonRouteArray.getJSONObject(i);
+                routeList.add(new RouteModel(result.getString("id"), result.getString("starting_point"),
+                        result.getString("arrival_point"), result.getInt("travel_time"), result.getInt("travel_distance")));
+            }
+        }catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, "에러 하이고" );
+        }
+
+        Log.d(TAG, "경로배열 원래 크기 " + routeList.size());
+    }
+
     public void orderShowRequest() {
         Log.d(TAG, "마커정보 size " + list.size());
         for (int i = 0; i < list.size(); i++) {
@@ -240,7 +290,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
         Log.d(TAG, "출발지 id값 " + startingId);
-        String url = "http://13.124.189.186/api/orders/show?startingId=" + startingId + "&guard=user";
+        String url = "http://13.124.189.186/api/orders/show?starting_id=" + startingId + "&guard=user";
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @SuppressLint("SetTextI18n")
             public void onResponse(String response) {
@@ -251,11 +301,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
                     getMsg = jsonResponse.getString("message");   //모든경우
+                    if(getMsg.equals("Cart is ready for start")) {
+                        cartId = jsonResponse.getString("cart_id"); //가용차량 있을때만
+                        moveNeed = jsonResponse.getBoolean("cartMove_needs");
+                    }
                     if(getMsg.equals("Cart is need to move")) {
-                        String getCartId = jsonResponse.getString("cart_id"); //가용차량 있을때만
+                        cartId = jsonResponse.getString("cart_id"); //가용차량 있을때만
                         moveNeed = jsonResponse.getBoolean("cartMove_needs"); //가용차량 있을때만
                         moveNeedTime = jsonResponse.getInt("cartMove_time"); // 가용차량 있고 움직일때만
-                        int getRouteId = jsonResponse.getInt("cartMove_route"); // 가용차량 있고 움직일때만
+                        moveNeedRoute = jsonResponse.getString("cartMove_route"); // 가용차량 있고 움직일때만
                     }
                     if(getMsg.equals("There is no available cart")) {
                         remainOrder = jsonResponse.getInt("remain_order");
@@ -317,6 +371,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 selectedCount++;
                 if(selectedCount == 1) {
                     orderShowRequest(); // 출발지 클릭시 실행
+                }
+                if(selectedCount == 2) {
+                    for (int i = 0; i < list.size(); i++) {
+                        Log.d(TAG, "마커 제목들" + selectedTitle[1] +"  " + list.get(i).getTitle());
+                        if(selectedTitle[1].equals(list.get(i).getTitle())) {
+                            arrivalId = list.get(i).getId();
+                            Log.d(TAG, "d---" + list.get(i).getId());
+                        }
+                    }
                 }
                 Log.d(TAG, "제목 설정 및 카운트 업");
             }
@@ -399,7 +462,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         getMarkerItems();
-
+        getRouteItems();
         //-----------------------------------------------------------------------
         LatLng YJU = new LatLng(35.896274, 128.621827);
 

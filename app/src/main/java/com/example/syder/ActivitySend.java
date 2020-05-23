@@ -28,6 +28,9 @@ public class ActivitySend extends AppCompatActivity {
     private static final String TAG = "activity_send";
     private ActivitySendBinding binding;
     private RequestQueue requestQueue;
+    private String moveNeedSelect;
+    private String routeReverse;
+    private String routeID;
     static String receiverName;
     static int receiverID;
     static int orderID;
@@ -39,6 +42,8 @@ public class ActivitySend extends AppCompatActivity {
         binding = ActivitySendBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        moveNeedSelect = MainActivity.moveNeed ? "1" : "0";
+        routeReverseChecking();
         binding.buttonCheckNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,8 +56,64 @@ public class ActivitySend extends AppCompatActivity {
             public void onClick(View v) {
                 orderRequest();
                 orderConsentRequest();
+                authCheck();
             }
         });
+    }
+
+    public void routeReverseChecking() {
+//        routeReverse
+        for(int i = 0; i < MainActivity.routeList.size(); i++) {
+            if (MainActivity.startingId.equals(MainActivity.routeList.get(i).getStartingId()) &&
+            MainActivity.arrivalId.equals(MainActivity.routeList.get(i).getArrivalPoint())) {
+                routeReverse = "0";
+                routeID = MainActivity.routeList.get(i).getRouteId();
+                break;
+            }else if(MainActivity.startingId.equals(MainActivity.routeList.get(i).getArrivalPoint()) &&
+                    MainActivity.arrivalId.equals(MainActivity.routeList.get(i).getStartingId())) {
+                routeReverse = "1";
+                routeID = MainActivity.routeList.get(i).getRouteId();
+                break;
+            }
+        }
+    }
+
+    public void authCheck() {
+        //ActivityLogin.orderId
+        String url = "http://13.124.189.186/api/authCheck?guard=user";
+        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            public void onResponse(String response) {
+                int authId = 0;
+                Log.d(TAG,"auth 체크" + response);
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    authId = jsonResponse.getInt("id");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "auth 체크 에러 하이고" );
+                }
+                if(authId == ActivityLogin.orderId) {
+                    Intent intent = new Intent(ActivitySend.this, ActivitySending.class);
+                    startActivity(intent);
+                }
+            }
+        },new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG,"auth 체크 에러 -> " + error.getMessage());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError{
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization" , "Bearer " + ActivityLogin.loginResponse);
+                return params;
+            }
+        };
+
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        Log.d(TAG, "auth 체크 요청보냄");
     }
 
     public void orderConsentRequest() {
@@ -68,8 +129,7 @@ public class ActivitySend extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Intent intent = new Intent(ActivitySend.this, ActivitySending.class);
-                startActivity(intent);
+
             }
         }, new Response.ErrorListener() {
             @Override
@@ -121,12 +181,12 @@ public class ActivitySend extends AppCompatActivity {
         }) {
             protected Map<String, String> getParams() throws AuthFailureError{
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("receiver", String.valueOf(receiverID));
-                params.put("order_cart", String.valueOf(1));    // 임시 값 일단 차가 없다
-                params.put("order_route", String.valueOf(1));   // 임시 값 경로가 없다
-                params.put("reverse_direction", String.valueOf(1));
-                params.put("cartMove_needs", String.valueOf(1));   // 임시 값 일단 차가 없다
-                params.put("cartMove_route", String.valueOf(1));   // 임시 값 경로가 없다
+                params.put("receiver", "" + receiverID);
+                params.put("order_cart", MainActivity.cartId);    // 임시 값 일단 차가 없다
+                params.put("order_route", routeID);   // 임시 값 경로가 없다
+                params.put("reverse_direction", routeReverse);
+                params.put("cartMove_needs", "" + moveNeedSelect);   // 임시 값 일단 차가 없다
+                params.put("cartMove_route", MainActivity.moveNeedRoute);   // 임시 값 경로가 없다
                 params.put("guard", "user");
 
                 return params;
