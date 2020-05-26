@@ -1,5 +1,6 @@
 package com.example.syder;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -38,25 +39,47 @@ public class MyFirebaseInstanceIDService extends FirebaseMessagingService {
           Log.d(TAG, "onMessageReceived: Message received from : " + remoteMessage.getFrom());
 
           if(remoteMessage.getNotification() != null){
+               Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
                String title = remoteMessage.getNotification().getTitle();
                String body = remoteMessage.getNotification().getBody();
-
-               Notification notification = new Notification.Builder(this,FCM_CHANNEL_ID)
-                       .setSmallIcon(R.drawable.ic_chat_black_24dp)
-                       .setContentTitle(title)
-                       .setContentText(body)
-                       .setColor(Color.BLUE)
-                       .build();
-
-               NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-               manager.notify(1002,notification);
+               String click_action = remoteMessage.getNotification().getClickAction();
+               sendNotification(title, body, click_action);
           }
 
           if(remoteMessage.getData().size() > 0){
-               Log.d(TAG,"onMessageReceived: data" + remoteMessage.getData().toString());
+               Log.d(TAG,"onMessageReceived: data" + remoteMessage.getData());
           }
      }
 
+     @RequiresApi(api = Build.VERSION_CODES.O)
+     private void sendNotification(String title, String messageBody, String click_action) {
+          if(title == null) {
+               title = "FCM Noti";
+          }
+
+          Intent intent = null;
+          if(click_action.equals("ConsentActivity")) {
+               intent = new Intent(this, ActivityWait.class);
+               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+          }else {
+               intent = new Intent(this, ActivityLogin.class);
+               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+          }
+
+          PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                  intent, PendingIntent.FLAG_ONE_SHOT);
+
+          Notification notification = new Notification.Builder(this,FCM_CHANNEL_ID)
+                  .setSmallIcon(R.drawable.ic_chat_black_24dp)
+                  .setContentTitle(title)
+                  .setContentText(messageBody)
+                  .setColor(Color.BLUE)
+                  .setContentIntent(pendingIntent)
+                  .build();
+
+          NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+          manager.notify(1002, notification);
+     }
      @Override
      public void onDeletedMessages() {
           super.onDeletedMessages();
@@ -66,6 +89,6 @@ public class MyFirebaseInstanceIDService extends FirebaseMessagingService {
      @Override
      public void onNewToken(@NonNull String s) {
           super.onNewToken(s);
-          Log.d(TAG, "onNewToken: called");
+          Log.d(TAG, "onNewToken: called" + s);
      }
 }
