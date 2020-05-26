@@ -20,6 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.syder.databinding.ActivityOrderStartBinding;
 import com.example.syder.databinding.ActivityOrderingBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -38,21 +39,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ActivityOrdering extends FragmentActivity implements OnMapReadyCallback {
+public class ActivityOrderStart extends FragmentActivity implements OnMapReadyCallback {
 
-    private ActivityOrderingBinding binding;
+    private ActivityOrderStartBinding binding;
     private GoogleMap           mMap;
     private RequestQueue requestQueue;
     private SupportMapFragment mapFragment;
     private static int count;
-    private static final String TAG = "activity_ordering";
+    private static final String TAG = "activity_order_start";
     private int select;
-//    private static int
+    //    private static int
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityOrderingBinding.inflate(getLayoutInflater());
+        binding = ActivityOrderStartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         requestQueue =  Volley.newRequestQueue(this);
@@ -60,16 +61,18 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
         long now = System.currentTimeMillis() + MainActivity.travelTime * 60000; //*60000
         Log.d(TAG, "now : " + now);
         Date mDate = new Date(now);
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat mFormat = new SimpleDateFormat("hh:mm:ss");
-        String getTime = mFormat.format(mDate);
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDate = new SimpleDateFormat("hh:mm:ss");
+        String getTime = simpleDate.format(mDate);
         binding.arriveTime.setText(getTime);
 
-        binding.textView4.setText(ActivitySend.receiverName + "님께서 배송요청을 하셨습니다.");
+        binding.buttonStart.setOnClickListener(v -> {
+            binding.buttonStart.setVisibility(View.GONE);
+            binding.buttonQRcodeCheckMap.setVisibility(View.VISIBLE);
+        });
 
-        binding.agree.setOnClickListener(v -> {
-            select = 1;
-            selected();
-            Intent intent = new Intent(this, ActivityWait.class);
+        binding.buttonQRcodeCheckMap.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ActivityScanQR.class);
+            intent.putExtra("intent", 2);
             startActivity(intent);
             finish();
         });
@@ -96,7 +99,7 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
         markerOptions.title(title);
         markerOptions.position(position);
         count++;
-        Log.d(TAG, "횟수 " + count);
+        Log.d(TAG, "d" + count);
         Bitmap markerDrawSelected_1= Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_pin_drop_white_24dp),
                 100, 100, false);
         Bitmap markerDrawSelected_2= Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.baseline_pin_drop_black_24dp),
@@ -129,40 +132,5 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
         for (MarkerModel markerModel : list) {
             addMarker(markerModel, false);
         }
-    }
-
-    public void selected() {
-        String url = "http://13.124.189.186/api/consent/response?order_id=" + ActivitySend.orderID + "&consent_or_not=" + select + "&guard=user";
-
-        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-
-            public void onResponse(String response) {
-                Log.d(TAG, "순서대로 " + response);
-                try {
-                    JSONObject jsonResponse = new JSONObject(response);
-                    String getMsg = jsonResponse.getString("message");
-                    String receiverToken = jsonResponse.getString("receiver_token");
-                    Log.d(TAG, "동의요청" + getMsg);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                NetworkResponse response = error.networkResponse;
-                String jsonError = new String(response.data);
-                Log.d(TAG, "에러" + jsonError);
-            }
-        }) {
-            public Map getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
-                return params;
-            }
-        };
-        request.setShouldCache(false);
-        requestQueue.add(request);
-        Log.i(TAG, "요청 보냄.");
     }
 }

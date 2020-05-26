@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 
@@ -17,7 +18,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.syder.databinding.ActivitySendBinding;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,7 +34,7 @@ public class ActivitySend extends AppCompatActivity {
     static String receiverName;
     static int receiverID;
     static int orderID;
-
+    static String createdAt;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,14 +55,22 @@ public class ActivitySend extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 orderRequest();
-                sendAgree();
+                new CountDownTimer(1000, 1000) {
+
+                    public void onTick(long millisUntilFinished) {
+                    }
+
+                    public void onFinish() {
+                        sendAgree();
+                    }
+                }.start();
+
                 authCheck();
             }
         });
     }
 
     public void routeReverseChecking() {
-//        routeReverse
         for(int i = 0; i < MainActivity.routeList.size(); i++) {
             if (MainActivity.startingId.equals(MainActivity.routeList.get(i).getStartingId()) &&
                     MainActivity.arrivalId.equals(MainActivity.routeList.get(i).getArrivalPoint())) {
@@ -92,8 +100,8 @@ public class ActivitySend extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e(TAG, "auth 체크 에러 하이고" );
                 }
-                if(authId == ActivityLogin.orderId) {
-                    Intent intent = new Intent(ActivitySend.this, ActivitySending.class);
+                if(authId == ActivityLogin.userId) {
+                    Intent intent = new Intent(ActivitySend.this, ActivityOrdering.class);
                     startActivity(intent);
                 }
             }
@@ -118,12 +126,12 @@ public class ActivitySend extends AppCompatActivity {
 
     public void sendAgree() {
 
-        String url = "http://13.124.189.186/api/consent/request?order_id=4&guard=user";
+        String url = "http://13.124.189.186/api/consent/request?order_id=" + orderID + "&guard=user";
 
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
 
             public void onResponse(String response) {
-                Log.d(TAG, "응답" + response);
+                Log.d(TAG, "순서대로 " + response);
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
                     String jsonAgree = jsonResponse.getString("message");
@@ -158,37 +166,54 @@ public class ActivitySend extends AppCompatActivity {
             @Override
             public void onResponse(String response) {
                 Log.d(TAG, "동의요청 보내면서 주문 정보 보내기");
-                Log.d(TAG, response);
+                Log.d("주문등록 ", "" + receiverID);
+                Log.d("주문등록 ", "" + MainActivity.cartId);
+                Log.d("주문등록 ", "" + routeID);
+                Log.d("주문등록 ", "" + routeReverse);
+                Log.d("주문등록 ", "" + moveNeedSelect);
+                Log.d("주문등록 ", "" + MainActivity.moveNeedRoute);
+                Log.d(TAG, "순서대로 " + response);
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
                     JSONObject jsonOrder = jsonResponse.getJSONObject("order");
                     orderID = jsonOrder.getInt("id");
                     String senderId = jsonOrder.getString("sender");
                     String receiver = jsonOrder.getString("receiver");
+                    createdAt = jsonOrder.getString("created_at");
 
-                    Log.d(TAG, "화면 전환 id: " + orderID);
 
-//                    Intent intent = new Intent(ActivitySend.this, ActivitySending.class);
-//                    startActivity(intent);
+                    Intent intent = new Intent(ActivitySend.this, ActivityOrdering.class);
+                    startActivity(intent);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
+                Log.d(TAG, "order id: " + orderID);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                error.printStackTrace();
             }
         }) {
             protected Map<String, String> getParams() throws AuthFailureError{
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("receiver", "" + receiverID);
-                params.put("order_cart", MainActivity.cartId);
-                params.put("order_route", routeID);
-                params.put("reverse_direction", routeReverse);
-                params.put("cartMove_needs", "" + moveNeedSelect);
-                params.put("cartMove_route", MainActivity.moveNeedRoute);
+//                params.put("receiver", "" + receiverID);
+//                params.put("order_cart", MainActivity.cartId);
+//                params.put("order_route", routeID);
+//                params.put("reverse_direction", routeReverse);
+//                params.put("cartMove_needs", "" + moveNeedSelect);
+//                if(moveNeedSelect.equals("1")) {
+//                    params.put("cartMove_route", MainActivity.moveNeedRoute);
+//                }else {
+//                    params.put("cartMove_route", routeID);
+//                }
+
+                params.put("receiver", "2");
+                params.put("order_cart", "1");
+                params.put("order_route", "1");
+                params.put("reverse_direction", "1");
+                params.put("cartMove_needs", "1");
+                params.put("cartMove_route", "1");
                 params.put("guard", "user");
 
                 return params;
@@ -203,6 +228,7 @@ public class ActivitySend extends AppCompatActivity {
         };
         request.setShouldCache(false);
         requestQueue.add(request);
+
         Log.i(TAG,"주문요청 보냄.");
     }
 

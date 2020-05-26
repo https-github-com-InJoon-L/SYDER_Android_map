@@ -57,8 +57,9 @@ public class ActivityWait extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e(TAG, "auth 체크 에러 하이고" );
                 }
-                if(authId == ActivityLogin.orderId) {
+                if(authId == ActivityLogin.userId) {
                     startActivity(new Intent(getApplicationContext(), ActivityScanQR.class));
+                    finish();
                 }
             }
         },new Response.ErrorListener(){

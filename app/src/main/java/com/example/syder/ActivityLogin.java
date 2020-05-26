@@ -34,7 +34,7 @@ public class ActivityLogin extends AppCompatActivity {
     private ActivityLoginBinding binding;
     static RequestQueue requestQueue;
     static String url = "http://13.124.189.186/api/login";
-    static int orderId;
+    static int userId;
     static String loginResponse;
     static String FCMtoken;
     @Override
@@ -102,7 +102,7 @@ public class ActivityLogin extends AppCompatActivity {
                     String phone = jsonUser.getString("phone");
 
                     loginResponse = getToken;
-                    orderId = getId;
+                    userId = getId;
 
                     Log.i(TAG,"account : " + account + "name : " + name + "email : " + email + "phone : " + phone);
                     Log.i(TAG,"token 값 응답 : " + loginResponse);

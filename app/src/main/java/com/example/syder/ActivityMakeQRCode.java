@@ -44,7 +44,7 @@ public class ActivityMakeQRCode extends AppCompatActivity {
 
 
     public void QRCodecheck(){
-        String url = "http://13.124.189.186/api/orders/1/orderAuth?orderId="+ActivityLogin.orderId+"&userId="+ ActivitySend.receiverID+"&userCategory=sender&guard=user";
+        String url = "http://13.124.189.186/api/orders/1/orderAuth?orderId="+ActivityLogin.userId +"&userId="+ ActivitySend.receiverID+"&userCategory=sender&guard=user";
 
 
         StringRequest request = new StringRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<String>() {
@@ -52,7 +52,7 @@ public class ActivityMakeQRCode extends AppCompatActivity {
             public void onResponse(String response) {
                 response_QRcode = response;
                 Log.d(TAG,"응답" + response_QRcode);
-                Log.d(TAG, "응답 : " +ActivityLogin.orderId + ActivitySend.receiverID);
+                Log.d(TAG, "응답 : " +ActivityLogin.userId + ActivitySend.receiverID);
                 QRCodeButton();
             }
         },new Response.ErrorListener(){

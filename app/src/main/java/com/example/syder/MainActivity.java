@@ -14,7 +14,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +64,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     static String startingId;
     static String arrivalId;
     private boolean setVisibilityInfo;
+    static int travelTime;
     static int selectedCount = 0;
     static String cartId;
     static String[] selectedTitle = new String[2];
@@ -204,7 +204,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     e.printStackTrace();
                     Log.e(TAG, "auth 체크 에러 하이고" );
                 }
-                if(authId == ActivityLogin.orderId) {
+                if(authId == ActivityLogin.userId) {
                     Intent intent = new Intent(MainActivity.this, ActivitySend.class);
                     startActivity(intent);
                 }
@@ -264,6 +264,20 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(intent);
     }
 
+    public void routeTimeChecking() {
+        for(int i = 0; i < routeList.size(); i++) {
+            if (startingId.equals(routeList.get(i).getStartingId()) &&
+                    arrivalId.equals(routeList.get(i).getArrivalPoint())) {
+                travelTime = routeList.get(i).getTravelTime();
+                break;
+            }else if(startingId.equals(routeList.get(i).getArrivalPoint()) &&
+                    arrivalId.equals(routeList.get(i).getStartingId())) {
+                travelTime = routeList.get(i).getTravelTime();
+                break;
+            }
+        }
+    }
+
     // 서버에서 받아온 데이터로 경로 저장
     private void getRouteItems() {
         try {
@@ -289,6 +303,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(TAG, "d---" + list.get(i).getId());
             }
         }
+
+        for (int i = 0; i < list.size(); i++) {
+            Log.d(TAG, "마커 제목들" + selectedTitle[1] +"  " + list.get(i).getTitle());
+            if(selectedTitle[1].equals(list.get(i).getTitle())) {
+                arrivalId = list.get(i).getId();
+                Log.d(TAG, "d---" + list.get(i).getId());
+            }
+        }
         Log.d(TAG, "출발지 id값 " + startingId);
         String url = "http://13.124.189.186/api/orders/show?starting_id=" + startingId + "&guard=user";
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
@@ -297,10 +319,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 int moveNeedTime = 0;
                 int remainOrder = 0;
                 String getMsg = null;
-                Log.d(TAG,"가용차량" + response);
+                Log.d(TAG,"순서대로 " + response);
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
-                    getMsg = jsonResponse.getString("message");   //모든경우
+                    getMsg = jsonResponse.getString("message");//모든경우
+
                     if(getMsg.equals("Cart is ready for start")) {
                         cartId = jsonResponse.getString("cart_id"); //가용차량 있을때만
                         moveNeed = jsonResponse.getBoolean("cartMove_needs");
@@ -314,8 +337,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     if(getMsg.equals("There is no available cart")) {
                         remainOrder = jsonResponse.getInt("remain_order");
                     }
-
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e(TAG, "가용에러 하이고" );
@@ -323,11 +344,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 if(getMsg.equals("There is no available cart")) {
                     setVisibilityInfo = true;
                     binding.watingNumber.setText("현재 대기열 : " + remainOrder);
-                }
-                if(moveNeed) {
+                }else if(moveNeed) {
                     binding.timeAttack.setText("차량도착시간 | " + moveNeedTime + ":00");
+                    binding.timeResult.setText("총 소요 시간 | " + (moveNeedTime + travelTime) + ":00");
                 }else {
                     binding.timeAttack.setText("차량도착시간 | 00:00");
+                    binding.timeResult.setText("총 소요 시간 | " + travelTime + ":00");
                 }
             }
         },new Response.ErrorListener(){
@@ -369,17 +391,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             if(selectedCount != 2) {
                 selectedTitle[selectedCount] = title;
                 selectedCount++;
-                if(selectedCount == 1) {
-                    orderShowRequest(); // 출발지 클릭시 실행
-                }
                 if(selectedCount == 2) {
-                    for (int i = 0; i < list.size(); i++) {
-                        Log.d(TAG, "마커 제목들" + selectedTitle[1] +"  " + list.get(i).getTitle());
-                        if(selectedTitle[1].equals(list.get(i).getTitle())) {
-                            arrivalId = list.get(i).getId();
-                            Log.d(TAG, "d---" + list.get(i).getId());
-                        }
-                    }
+                    orderShowRequest(); // 출발지 클릭시 실행
+                    routeTimeChecking();
                 }
                 Log.d(TAG, "제목 설정 및 카운트 업");
             }
@@ -420,7 +434,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     // 표시 마커 동작
     private void changeSelectedMarker(Marker marker) {
         Log.d(TAG, "마커 정보 : " + marker);
-        Log.d(TAG, "배열 넣어진 크기 changeSelectesMarker" + markersInfo.size());
+        Log.d(TAG, "배열 넣어진 크기 changeSelectMarker" + markersInfo.size());
         // 선택했던 마커 다시 선택시 되돌리기 단, 순서대로
         if((selectedTitle[0] != null && selectedTitle[0].equals(marker.getTitle())) && !marker.getTitle().equals("car")
                 || (selectedTitle[1] != null && selectedTitle[1].equals(marker.getTitle()) && !marker.getTitle().equals("car"))) {
