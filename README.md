@@ -85,3 +85,13 @@
 * RouteModel 생성
 * api order/register 데이터 유동적으로 보내기
 * Fcm token을 이용한 알림 적용 -> 아직 임의의 값만 
+
+2020/05/25
+----------------
+* orders 오류 수정
+* api consent req, res 적용 및 테스트완료
+
+2020/05/26
+----------------
+* [happy ending]주문과정에 따른 api 테스트
+* 수신자와 발신자 한기기에서 적용 됨 -> fcm을 이용해 나눠서 
