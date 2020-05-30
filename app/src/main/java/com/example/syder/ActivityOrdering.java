@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ActivityOrdering extends FragmentActivity implements OnMapReadyCallback {
 
@@ -47,6 +48,8 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
     private static int count;
     private static final String TAG = "activity_ordering";
     private int select;
+    String activityName;
+    String orderName;
 //    private static int
     @SuppressLint("SetTextI18n")
     @Override
@@ -57,23 +60,43 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
 
         requestQueue =  Volley.newRequestQueue(this);
 
+
         long now = System.currentTimeMillis() + MainActivity.travelTime * 60000; //*60000
         Log.d(TAG, "now : " + now);
         Date mDate = new Date(now);
         @SuppressLint("SimpleDateFormat") SimpleDateFormat mFormat = new SimpleDateFormat("hh:mm:ss");
         String getTime = mFormat.format(mDate);
         binding.arriveTime.setText(getTime);
+        activityName = "";
+        orderName = "";
+        try {
+            Intent getActivity = getIntent();
+            activityName = Objects.requireNonNull(getActivity.getExtras()).getString("activity_name");
+            orderName = getActivity.getExtras().getString("order_name");
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        binding.textView4.setText(ActivitySend.receiverName + "님께서 배송요청을 하셨습니다.");
+        binding.textView4.setText(orderName + "님께서 배송요청을 하셨습니다.");
 
         binding.agree.setOnClickListener(v -> {
             select = 1;
             selected();
-            Intent intent = new Intent(this, ActivityWait.class);
+
+            Intent intent = new Intent(this, ActivityOrderEnd.class);
+            intent.putExtra("activity_name" , activityName);
+            intent.putExtra("order_name", orderName);
             startActivity(intent);
             finish();
         });
 
+        binding.reject.setOnClickListener(v -> {
+            select = 0;
+            selected();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        });
         mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);

@@ -19,7 +19,7 @@ public class ActivitySending extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         Intent intent = new Intent(this, ActivityWait.class);
-        new CountDownTimer(2000, 1000) {
+        new CountDownTimer(10000, 1000) {
 
             public void onTick(long millisUntilFinished) {
             }

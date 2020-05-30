@@ -182,7 +182,7 @@ public class ActivitySend extends AppCompatActivity {
                     createdAt = jsonOrder.getString("created_at");
 
 
-                    Intent intent = new Intent(ActivitySend.this, ActivityOrdering.class);
+                    Intent intent = new Intent(ActivitySend.this, ActivitySending.class);
                     startActivity(intent);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -208,7 +208,7 @@ public class ActivitySend extends AppCompatActivity {
 //                    params.put("cartMove_route", routeID);
 //                }
 
-                params.put("receiver", "2");
+                params.put("receiver", "5");
                 params.put("order_cart", "1");
                 params.put("order_route", "1");
                 params.put("reverse_direction", "1");

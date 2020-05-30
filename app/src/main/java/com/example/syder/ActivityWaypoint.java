@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -22,6 +23,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ActivityWaypoint extends AppCompatActivity {
 
@@ -41,11 +43,25 @@ public class ActivityWaypoint extends AppCompatActivity {
         requestQueue =  Volley.newRequestQueue(this);
         waypointRequest();
         routeRequest();
-        orderCheck();
+//        orderCheck();
+        String activityName = "";
+        try {
+            Intent getActivity = getIntent();
+            activityName = Objects.requireNonNull(getActivity.getExtras()).getString("activity_name");
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
-        startActivity(intent);
-        finish();
+//        if(activityName.equals("waypoint")){
+//            Intent intent = new Intent(this, ActivityOrdering.class);
+//            startActivity(intent);
+//            finish();
+//        }else if() {
+//            Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
+//            startActivity(intent);
+//            finish();
+//        }
+
     }
 
     public void waypointRequest() {
@@ -94,6 +110,31 @@ public class ActivityWaypoint extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e(TAG, "경로에러 하이고" );
                 }
+                if(!flag) {
+                    Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
+                    new CountDownTimer(1000, 1000) {
+
+                        public void onTick(long millisUntilFinished) {
+                        }
+
+                        public void onFinish() {
+                            startActivity(intent);
+                            finish();
+                        }
+                    }.start();
+                }else {
+                    Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
+                    new CountDownTimer(1000, 1000) {
+
+                        public void onTick(long millisUntilFinished) {
+                        }
+
+                        public void onFinish() {
+                            startActivity(intent);
+                            finish();
+                        }
+                    }.start();
+                }
             }
         },new Response.ErrorListener(){
             @Override
@@ -127,15 +168,7 @@ public class ActivityWaypoint extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e(TAG, "주문쳌에러 하이고" );
                 }
-                if(!flag) {
-                    Intent intent = new Intent(ActivityWaypoint.this, ActivityOrdering.class);
-                    startActivity(intent);
-                    finish();
-                }else {
-                    Intent intent = new Intent(ActivityWaypoint.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
+
             }
         },new Response.ErrorListener(){
             @Override

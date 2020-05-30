@@ -140,7 +140,7 @@
                 android:layout_height="20dp"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
-                android:text="차량도착시간 | 05:00" />
+                android:text="차량도착시간 | " />
 
             <TextView
                 android:id="@+id/timeResult"
@@ -149,7 +149,7 @@
                 android:layout_margin="10dp"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
-                android:text="총 소요 시간 | 00:00" />
+                android:text="총 소요 시간 | " />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

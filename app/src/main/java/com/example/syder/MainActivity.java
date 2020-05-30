@@ -132,64 +132,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    @Override
-    protected  void onStop() {
-        super.onStop();
-//        mSocket.disconnect();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // 소켓 서버
-//        try {
-//            mSocket = IO.socket("http://13.124.124.67:80/user");
-//            Log.d(TAG, "ip주소 유");
-//            mSocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-//                @Override
-//                public void call(Object... args) {
-//                    mSocket.emit("message_from_user1", "hi");
-//                    Log.d(TAG, "소켓 서버 접속");
-//                }
-//            }).on("location", new Emitter.Listener() {
-//                @Override
-//                public void call(Object... args) {
-//                    Log.d(TAG, "뭐가 올까 " + args[0] + " 그자체 " + Arrays.toString(args));
-//                    JSONArray onLocationArray = (JSONArray) args[0];
-//                    Double getLat = 0.0;
-//                    Double getLng = 0.0;
-//                    String getTitle = "";
-//
-//                    try {
-//                        for(int i = 0; i < onLocationArray.length(); i++) {
-//                            JSONObject onLocationData = onLocationArray.getJSONObject(i);
-//                            getLat = onLocationData.getDouble("lat");
-//                            getLng = onLocationData.getDouble("lng");
-//                        }
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                    Double finalGetLat = getLat;
-//                    Double finalGetLng = getLng;
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Bitmap car = Bitmap.createScaledBitmap(BitmapFactory
-//                                            .decodeResource(getResources(), R.drawable.driving),
-//                                    60, 60, false);
-//                            mMap.addMarker(new MarkerOptions().position(
-//                                    new LatLng(finalGetLat, finalGetLng)).title(getTitle)
-//                                    .icon(BitmapDescriptorFactory.fromBitmap(car)));
-//                        }
-//                    });
-//                }
-//            });
-//            mSocket.connect();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-    }
-
     public void authCheck() {
         //ActivityLogin.orderId
         String url = "http://13.124.189.186/api/authCheck?guard=user";

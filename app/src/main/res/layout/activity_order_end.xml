@@ -53,6 +53,22 @@
         </FrameLayout>
 
         <Button
+            android:id="@+id/button_QRcodeCheckMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="25dp"
+            android:background="@color/colorPrimary"
+            android:text="Q R 코드 확인"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible" />
+
+        <Button
             android:id="@+id/button_end"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -61,12 +77,12 @@
             android:layout_marginBottom="25dp"
             android:background="@color/colorPrimary"
             android:text="수 령 완 료"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            tools:visibility="visible" />
+            tools:visibility="gone" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

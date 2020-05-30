@@ -59,10 +59,20 @@ public class ActivityOrderEnd extends FragmentActivity implements OnMapReadyCall
 
         requestQueue =  Volley.newRequestQueue(this);
 
+        binding.buttonQRcodeCheckMap.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ActivityScanQR.class);
+            intent.putExtra("intent", 2);
+            startActivity(intent);
+            binding.buttonQRcodeCheckMap.setVisibility(View.GONE);
+            binding.buttonEnd.setVisibility(View.VISIBLE);
+            finish();
+        });
+
         binding.buttonEnd.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainActivity.class);
             Toast.makeText(this, "수령이 완료 되었습니다.", Toast.LENGTH_LONG).show();
             startActivity(intent);
+            finish();
         });
 
         mapFragment = (SupportMapFragment)getSupportFragmentManager()

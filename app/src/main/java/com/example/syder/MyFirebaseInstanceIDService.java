@@ -30,7 +30,7 @@ import static com.example.syder.App.FCM_CHANNEL_ID;
 
 public class MyFirebaseInstanceIDService extends FirebaseMessagingService {
      private static final String TAG = "MyTag";
-
+     private char[] receiverNames;
      @RequiresApi(api = Build.VERSION_CODES.O)
      @Override
      public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
@@ -43,43 +43,59 @@ public class MyFirebaseInstanceIDService extends FirebaseMessagingService {
                String title = remoteMessage.getNotification().getTitle();
                String body = remoteMessage.getNotification().getBody();
                String click_action = remoteMessage.getNotification().getClickAction();
-               sendNotification(title, body, click_action);
+               Log.d(TAG, "Message Notification clickAction : " + remoteMessage.getNotification().getClickAction() + " " + click_action);
+
+
+               Intent intent = null;
+               assert click_action != null;
+               if(click_action.equals("ConsentActivity")) {
+                    intent = new Intent(this, ActivityOrdering.class);
+                    intent.putExtra("activity_name", "waypoint");
+                    intent.putExtra("order_name", ActivityLogin.name);
+               }else if(click_action.equals("AgreeActivity")){
+                    intent = new Intent(this, ActivityWait.class);
+                    intent.putExtra("activity_name", "waypoint");
+                    intent.putExtra("order_name", ActivityLogin.name);
+               }else if(click_action.equals("DisagreeActivity")) {
+                    intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("activity_name", "waypoint");
+               }
+
+
+               assert intent != null;
+               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+               PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                       intent, PendingIntent.FLAG_ONE_SHOT);
+
+               Notification notification = new Notification.Builder(this,FCM_CHANNEL_ID)
+                       .setSmallIcon(R.drawable.ic_chat_black_24dp)
+                       .setContentTitle(title)
+                       .setContentText(body)
+                       .setColor(Color.BLUE)
+                       .setContentIntent(pendingIntent)
+                       .build();
+
+               NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+               manager.notify(1002, notification);
+
           }
 
           if(remoteMessage.getData().size() > 0){
                Log.d(TAG,"onMessageReceived: data" + remoteMessage.getData());
-          }
-     }
+               String receiverFcmToken = remoteMessage.getData().get("receiver_fcm_token");
+               Log.d(TAG, "onMessageReceived fcmToken: " + receiverFcmToken);
 
-     @RequiresApi(api = Build.VERSION_CODES.O)
-     private void sendNotification(String title, String messageBody, String click_action) {
-          if(title == null) {
-               title = "FCM Noti";
-          }
-
-          Intent intent = null;
-          if(click_action.equals("ConsentActivity")) {
+               Intent intent;
                intent = new Intent(this, ActivityWait.class);
+               intent.putExtra("activity_name", "waypoint");
                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-          }else {
-               intent = new Intent(this, ActivityLogin.class);
-               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+               PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                       intent, PendingIntent.FLAG_ONE_SHOT);
           }
-
-          PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                  intent, PendingIntent.FLAG_ONE_SHOT);
-
-          Notification notification = new Notification.Builder(this,FCM_CHANNEL_ID)
-                  .setSmallIcon(R.drawable.ic_chat_black_24dp)
-                  .setContentTitle(title)
-                  .setContentText(messageBody)
-                  .setColor(Color.BLUE)
-                  .setContentIntent(pendingIntent)
-                  .build();
-
-          NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-          manager.notify(1002, notification);
      }
+
      @Override
      public void onDeletedMessages() {
           super.onDeletedMessages();

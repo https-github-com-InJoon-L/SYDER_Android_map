@@ -32,6 +32,11 @@ public class ActivityWait extends AppCompatActivity {
         binding = ActivitySendWaitBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        Bundle bundle = getIntent().getExtras();
+        if(bundle != null) {
+            String fcmTokend = (String) bundle.get("receiver_fcm_token");
+            Log.d(TAG, "wait fcm" + fcmTokend);
+        }
         requestQueue =  Volley.newRequestQueue(this);
         binding.buttonQRcodeCheck.setOnClickListener(v->{
             authCheck();

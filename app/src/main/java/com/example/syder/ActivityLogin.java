@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ActivityLogin extends AppCompatActivity {
     private static final String TAG =  "activity_login";
@@ -37,6 +38,7 @@ public class ActivityLogin extends AppCompatActivity {
     static int userId;
     static String loginResponse;
     static String FCMtoken;
+    static String name;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +52,17 @@ public class ActivityLogin extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
+
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                Object value = getIntent().getExtras().get(key);
+                Log.d("TAG: ", "Key: " + key + " Value: " + value);
+            }
+        }else {
+            Log.d(TAG, "왜 못불러오냐");
+        }
 
         binding.buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,7 +110,7 @@ public class ActivityLogin extends AppCompatActivity {
                     JSONObject jsonUser = jsonResponse.getJSONObject("user");
                     int getId = jsonUser.getInt("id");
                     String account = jsonUser.getString("account");
-                    String name = jsonUser.getString("name");
+                    name = jsonUser.getString("name");
                     String email = jsonUser.getString("email");
                     String phone = jsonUser.getString("phone");
 
@@ -109,9 +122,23 @@ public class ActivityLogin extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                //------------------------------------------------------------------------------
                 Intent intent = new Intent(ActivityLogin.this, ActivityWaypoint.class);
                 startActivity(intent);
+                //------------------------------------------------------------------------------
+//                String activityName = "";
+//                String orderName = "";
+//                try {
+//                    Intent getActivity = getIntent();
+//                    activityName = Objects.requireNonNull(getActivity.getExtras()).getString("activity_name");
+//                    orderName = getActivity.getExtras().getString("order_name");
+//                }catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                Intent intent = new Intent(ActivityLogin.this, ActivityWaypoint.class);
+//                intent.putExtra("activity_name" , activityName);
+//                intent.putExtra("order_name", orderName);
+//                startActivity(intent);
+//                finish();
                 //-------------------------------------------------------------------------------
             }
         },new Response.ErrorListener(){

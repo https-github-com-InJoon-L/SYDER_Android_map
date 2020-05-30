@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -67,15 +68,25 @@ public class ActivityOrderStart extends FragmentActivity implements OnMapReadyCa
 
         binding.buttonStart.setOnClickListener(v -> {
             binding.buttonStart.setVisibility(View.GONE);
-            binding.buttonQRcodeCheckMap.setVisibility(View.VISIBLE);
+            Intent intent = new Intent(this, MainActivity.class);
+            new CountDownTimer(10000, 1000) {
+
+                public void onTick(long millisUntilFinished) {
+                }
+
+                public void onFinish() {
+                    startActivity(intent);
+                    finish();
+                }
+            }.start();
         });
 
-        binding.buttonQRcodeCheckMap.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ActivityScanQR.class);
-            intent.putExtra("intent", 2);
-            startActivity(intent);
-            finish();
-        });
+//        binding.buttonQRcodeCheckMap.setOnClickListener(v -> {
+////            Intent intent = new Intent(this, ActivityScanQR.class);
+////            intent.putExtra("intent", 2);
+////            startActivity(intent);
+////            finish();
+////        });
 
         mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
