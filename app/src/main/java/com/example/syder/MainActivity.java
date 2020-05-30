@@ -35,14 +35,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.socket.client.IO;
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private ActivityMainBinding binding;
@@ -55,7 +59,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private RequestQueue requestQueue;
     private TextView startPoint;
     private TextView endPoint;
-    private Socket mSocket;
     static ArrayList<RouteModel> routeList = new ArrayList<RouteModel>();
     private ArrayList<MarkerModel> markersInfo = new ArrayList<MarkerModel>();
     private ArrayList<MarkerModel> list = new ArrayList<MarkerModel>();
@@ -68,6 +71,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     static int selectedCount = 0;
     static String cartId;
     static String[] selectedTitle = new String[2];
+    private ArrayList<CarMarkerModel> carMarkerInfoList = new ArrayList<CarMarkerModel>();
+    private ArrayList<CarMarkerModel> carMarkerData     = new ArrayList<CarMarkerModel>();
+    private Socket socket;
+    private String Socket_URL_USER = "http://13.124.124.67:80/user";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +89,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         endPoint = findViewById(R.id.endPoint);
         ImageView menu_open = (ImageView)findViewById(R.id.menu_open);
 
+
+        //Socket Connect
+        connectServer();
         menu_open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,6 +140,154 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onPause() {
+        socket.close();
+        super.onPause();
+        finish();
+    }
+
+    private void connectServer(){
+        try {
+            socket = IO.socket(Socket_URL_USER);
+            socket.connect();
+            socketConnect();
+            Log.i(TAG, "지금 연결함!!");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+    // 초기 차량 위치 조회
+    public Emitter.Listener cars_info = args ->runOnUiThread(()->{
+        JSONArray data = (JSONArray) args[0];
+        Log.d(TAG,"초기 차량 위치  : " + data);
+    });
+
+    // 차량 위치 변화 받기
+    public Emitter.Listener car_location = args ->runOnUiThread(()->{
+        JSONArray data = (JSONArray) args[0];
+        Log.d(TAG,"차량 위치 변화 받기 : " + data);
+
+        carUpdate();
+
+        Log.d(TAG,carMarkerInfoList.size() + "");
+
+        try {
+            JSONObject jsonObject;
+            for(int i = 0; i < data.length(); i++){
+                jsonObject     = data.getJSONObject(i);
+                String carNumber              = jsonObject.getString("carNumber");
+                int car_status                = jsonObject.getInt("status");
+                double car_lat                = jsonObject.getDouble("lat");
+                double car_lng                = jsonObject.getDouble("lng");
+                int car_battery               = jsonObject.getInt("battery");
+                Log.d(TAG,carNumber +" : " +car_status + " : " + car_lat+ " : "  + car_lng+ " : "  + car_battery);
+
+                carMarkerInfoList.add(new CarMarkerModel(carNumber, car_status, car_lat, car_lng, car_battery));
+
+                Log.d(TAG,carMarkerInfoList.get(i).getCarNumber() + "");
+            }
+
+            for(CarMarkerModel carMarkerModel : carMarkerInfoList){
+                addCarMarker(carMarkerModel);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    });
+
+    public void carUpdate(){
+
+        for(int iCount = 0; iCount < carMarkerData.size() ; iCount++){
+            carMarkerData.get(iCount).getCarMarker().remove();
+            Log.d(TAG,carMarkerData.get(iCount).getCarMarker().toString());
+        }
+        carMarkerInfoList.removeAll(carMarkerInfoList);
+        carMarkerData.removeAll(carMarkerData);
+        Log.d(TAG,"리스트 값 확인 : "+carMarkerData.size() + carMarkerInfoList.size() + "");
+    }
+
+    public  void addCarMarker(CarMarkerModel carMarkerModel){
+        LatLng position = new LatLng(carMarkerModel.getCar_lat(), carMarkerModel.getCar_lng());
+        String carNumber = carMarkerModel.getCarNumber();
+        int carStatus = carMarkerModel.getCar_status();
+        int battery = carMarkerModel.getCar_battery();
+
+        Log.d(TAG, "postion : " + position + " carNumber : " + carNumber + "carStatus : " + carStatus + " battery : " + battery);
+        //크기를 지정해서 비트맵으로 만들기 자동차
+        Bitmap car = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.driving),
+                80, 80, false);
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.title(carNumber + "호차")
+                .snippet(battery + "%")
+                .icon(BitmapDescriptorFactory.fromBitmap(car))
+                .position(position);
+
+        Log.d(TAG, "위치 : " + position + "차량 호수 : "+carNumber + "차량 상태 : " +carStatus + "배터리 : " + battery);
+
+        carMarkerData.add(new CarMarkerModel(mMap.addMarker(markerOptions), carNumber));
+
+    }
+
+    // 서버와 소켓 연결 성공 시 리스너
+    private Emitter.Listener onConnect = args ->runOnUiThread(()->{
+        Log.d(TAG,"Connect message : 서버와 연결이 성공하였습니다.");
+        Toast.makeText(getApplicationContext(),"서버와 연결이 성공하였습니다.",Toast.LENGTH_SHORT).show();
+    });
+
+    // 서버연결이 실패 했을 때 리스너
+    private Emitter.Listener onConnectError = args ->runOnUiThread(()->{
+        Log.e(TAG,"Error message : 서버와 연결이 실패됬습니다.");
+        Toast.makeText(getApplicationContext(),"서버와 연결이 실패됬습니다.",Toast.LENGTH_SHORT).show();
+    });
+
+    private void socketConnect(){
+        socket.on(Socket.EVENT_CONNECT,onConnect);
+        socket.on(Socket.EVENT_CONNECT_ERROR,onConnectError);
+        socket.on("locationRequest",cars_info);
+        socket.on("car_updateLocation",car_location);
+
+        // 차량 출발 요청 모듈
+//        binding.btnStart.setOnClickListener(v -> {
+//            try {
+//                JSONObject locationInfo = new JSONObject();
+//                locationInfo.put("status", 210);
+//                locationInfo.put("carNumber", 1);
+//                locationInfo.put("path_id", 3);
+//                locationInfo.put("path_way", true);
+//                locationInfo.put("start_point", "본관");
+//                locationInfo.put("end_point", "연서관");
+//                locationInfo.put("sender_token", "FDEFJKLKWW@#322323LKWJKJAWW");
+//                locationInfo.put("receiver_token", "FDEFJKLKWW@#322323LKWJKJAWW");
+//                socket.emit("user_departureOrder", locationInfo);
+//                Log.d(TAG,"유저로부터 차량 출발 요청 받음!");
+//                Log.d(TAG,"서버로 데이터 전송");
+//            } catch (JSONException e) {
+//                Log.e(TAG, "Failed to create JSONObject", e);
+//            }
+//        });
+//
+//        //차량 개방 요청 모듈
+//        binding.btnOpen.setOnClickListener(v -> {
+//            try {
+//                JSONObject car_info = new JSONObject();
+//                car_info.put("status", 210);
+//                car_info.put("carNumber", 1);
+//                socket.emit("user_openRequest", car_info);
+//                Log.d(TAG,"유저로부터 차량 개방 요청 받음!");
+//                Log.d(TAG,"서버로 데이터 전송");
+//            } catch (JSONException e) {
+//                Log.e(TAG, "Failed to create JSONObject", e);
+//            }
+//        });
     }
 
     public void authCheck() {
@@ -423,13 +581,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng YJU = new LatLng(35.896274, 128.621827);
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(YJU, 17));
-        //크기를 지정해서 비트맵으로 만들기 자동차
-        Bitmap car = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.driving),
-                60, 60, false);
-        mMap.addMarker(new MarkerOptions().position(YJU).title("car").icon(BitmapDescriptorFactory.fromBitmap(car)));
         //마커 클릭에 대한 이벤트 처리
         mMap.setOnMarkerClickListener(this);
-
         mMap.moveCamera(CameraUpdateFactory.newLatLng(YJU));
     }
 
