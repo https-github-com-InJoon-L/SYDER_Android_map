@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ActivityOrderEnd extends FragmentActivity implements OnMapReadyCallback {
 
@@ -58,18 +59,21 @@ public class ActivityOrderEnd extends FragmentActivity implements OnMapReadyCall
         setContentView(binding.getRoot());
 
         requestQueue =  Volley.newRequestQueue(this);
+        if(ActivityScanQR.flag == 1) {
+            binding.buttonQRcodeCheckMap.setVisibility(View.GONE);
+            binding.buttonEnd.setVisibility(View.VISIBLE);
+        }
 
         binding.buttonQRcodeCheckMap.setOnClickListener(v -> {
             Intent intent = new Intent(this, ActivityScanQR.class);
             intent.putExtra("intent", 2);
             startActivity(intent);
-            binding.buttonQRcodeCheckMap.setVisibility(View.GONE);
-            binding.buttonEnd.setVisibility(View.VISIBLE);
             finish();
         });
 
         binding.buttonEnd.setOnClickListener(v -> {
             Intent intent = new Intent(this, MainActivity.class);
+            ActivityScanQR.flag = 0;
             Toast.makeText(this, "수령이 완료 되었습니다.", Toast.LENGTH_LONG).show();
             startActivity(intent);
             finish();

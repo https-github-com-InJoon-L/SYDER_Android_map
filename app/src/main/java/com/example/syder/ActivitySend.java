@@ -55,17 +55,7 @@ public class ActivitySend extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 orderRequest();
-                new CountDownTimer(1000, 1000) {
-
-                    public void onTick(long millisUntilFinished) {
-                    }
-
-                    public void onFinish() {
-                        sendAgree();
-                    }
-                }.start();
-
-                authCheck();
+//                authCheck();
             }
         });
     }
@@ -139,6 +129,16 @@ public class ActivitySend extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                new CountDownTimer(1000, 1000) {
+
+                    public void onTick(long millisUntilFinished) {
+                    }
+
+                    public void onFinish() {
+                        Intent intent = new Intent(ActivitySend.this, ActivitySending.class);
+                        startActivity(intent);
+                    }
+                }.start();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -180,14 +180,11 @@ public class ActivitySend extends AppCompatActivity {
                     String senderId = jsonOrder.getString("sender");
                     String receiver = jsonOrder.getString("receiver");
                     createdAt = jsonOrder.getString("created_at");
-
-
-                    Intent intent = new Intent(ActivitySend.this, ActivitySending.class);
-                    startActivity(intent);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 Log.d(TAG, "order id: " + orderID);
+                sendAgree();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -197,6 +194,14 @@ public class ActivitySend extends AppCompatActivity {
         }) {
             protected Map<String, String> getParams() throws AuthFailureError{
                 Map<String, String> params = new HashMap<String, String>();
+                params.put("receiver", "5");
+                params.put("order_availability", "1");
+                params.put("order_cart", "1");
+                params.put("order_route", "1");
+                params.put("reverse_direction", "1");
+                params.put("cartMove_needs", "1");
+                params.put("cartMove_route", "1");
+                params.put("guard", "user");
 //                params.put("receiver", "" + receiverID);
 //                params.put("order_cart", MainActivity.cartId);
 //                params.put("order_route", routeID);
@@ -207,15 +212,6 @@ public class ActivitySend extends AppCompatActivity {
 //                }else {
 //                    params.put("cartMove_route", routeID);
 //                }
-
-                params.put("receiver", "5");
-                params.put("order_cart", "1");
-                params.put("order_route", "1");
-                params.put("reverse_direction", "1");
-                params.put("cartMove_needs", "1");
-                params.put("cartMove_route", "1");
-                params.put("guard", "user");
-
                 return params;
             }
 

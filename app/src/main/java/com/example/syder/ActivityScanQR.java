@@ -17,6 +17,7 @@ import org.json.JSONObject;
 public class ActivityScanQR extends AppCompatActivity {
     private IntentIntegrator qrScan;
     private int id;
+    static int flag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +70,7 @@ public class ActivityScanQR extends AppCompatActivity {
                     startActivity(intent);
                 }else if(id == 2) {
                     Intent intent = new Intent(this, ActivityOrderEnd.class);
+                    flag = 1;
                     startActivity(intent);
                 }
                 finish();
