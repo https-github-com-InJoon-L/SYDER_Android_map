@@ -55,7 +55,7 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
     private int select;
     String activityName;
     String orderName;
-
+    String orderId;
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,10 +74,12 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
         binding.arriveTime.setText(getTime);
         activityName = "";
         orderName = "";
+        orderId = "";
         try {
             Intent getActivity = getIntent();
             activityName = Objects.requireNonNull(getActivity.getExtras()).getString("activity_name");
             orderName = getActivity.getExtras().getString("order_name");
+            orderId = getActivity.getExtras().getString("order_id");
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -154,7 +156,7 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
     }
 
     public void selected() {
-        String url = "http://13.124.189.186/api/consent/response?order_id=" + ActivitySend.orderID + "&consent_or_not=" + select + "&guard=user";
+        String url = "http://13.124.189.186/api/consent/response?order_id=" + orderId + "&consent_or_not=" + select + "&guard=user";
 
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
 
