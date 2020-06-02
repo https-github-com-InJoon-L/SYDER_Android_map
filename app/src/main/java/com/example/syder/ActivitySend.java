@@ -194,7 +194,7 @@ public class ActivitySend extends AppCompatActivity {
         }) {
             protected Map<String, String> getParams() throws AuthFailureError{
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("receiver", "5");
+                params.put("receiver", receiverID + "");
                 params.put("order_availability", "1");
                 params.put("order_cart", "1");
                 params.put("order_route", "1");
