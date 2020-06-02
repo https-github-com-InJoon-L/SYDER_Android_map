@@ -254,40 +254,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         socket.on(Socket.EVENT_CONNECT_ERROR,onConnectError);
         socket.on("locationRequest",cars_info);
         socket.on("car_updateLocation",car_location);
-
-        // 차량 출발 요청 모듈
-//        binding.btnStart.setOnClickListener(v -> {
-//            try {
-//                JSONObject locationInfo = new JSONObject();
-//                locationInfo.put("status", 210);
-//                locationInfo.put("carNumber", 1);
-//                locationInfo.put("path_id", 3);
-//                locationInfo.put("path_way", true);
-//                locationInfo.put("start_point", "본관");
-//                locationInfo.put("end_point", "연서관");
-//                locationInfo.put("sender_token", "FDEFJKLKWW@#322323LKWJKJAWW");
-//                locationInfo.put("receiver_token", "FDEFJKLKWW@#322323LKWJKJAWW");
-//                socket.emit("user_departureOrder", locationInfo);
-//                Log.d(TAG,"유저로부터 차량 출발 요청 받음!");
-//                Log.d(TAG,"서버로 데이터 전송");
-//            } catch (JSONException e) {
-//                Log.e(TAG, "Failed to create JSONObject", e);
-//            }
-//        });
-//
-//        //차량 개방 요청 모듈
-//        binding.btnOpen.setOnClickListener(v -> {
-//            try {
-//                JSONObject car_info = new JSONObject();
-//                car_info.put("status", 210);
-//                car_info.put("carNumber", 1);
-//                socket.emit("user_openRequest", car_info);
-//                Log.d(TAG,"유저로부터 차량 개방 요청 받음!");
-//                Log.d(TAG,"서버로 데이터 전송");
-//            } catch (JSONException e) {
-//                Log.e(TAG, "Failed to create JSONObject", e);
-//            }
-//        });
     }
 
     public void authCheck() {

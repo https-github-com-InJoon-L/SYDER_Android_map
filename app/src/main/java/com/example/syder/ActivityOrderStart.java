@@ -34,11 +34,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 public class ActivityOrderStart extends FragmentActivity implements OnMapReadyCallback {
 
@@ -49,6 +54,8 @@ public class ActivityOrderStart extends FragmentActivity implements OnMapReadyCa
     private static int count;
     private static final String TAG = "activity_order_start";
     private int select;
+    private Socket socket;
+    private String Socket_URL_USER = "http://13.124.124.67:80/user";
     //    private static int
     @SuppressLint("SetTextI18n")
     @Override
@@ -58,6 +65,8 @@ public class ActivityOrderStart extends FragmentActivity implements OnMapReadyCa
         setContentView(binding.getRoot());
 
         requestQueue =  Volley.newRequestQueue(this);
+//Socket Connect
+        connectServer();
 
         long now = System.currentTimeMillis() + MainActivity.travelTime * 60000; //*60000
         Log.d(TAG, "now : " + now);
@@ -68,17 +77,18 @@ public class ActivityOrderStart extends FragmentActivity implements OnMapReadyCa
 
         binding.buttonStart.setOnClickListener(v -> {
             binding.buttonStart.setVisibility(View.GONE);
-            Intent intent = new Intent(this, MainActivity.class);
-            new CountDownTimer(10000, 1000) {
-
-                public void onTick(long millisUntilFinished) {
-                }
-
-                public void onFinish() {
-                    startActivity(intent);
-                    finish();
-                }
-            }.start();
+//            Intent intent = new Intent(this, MainActivity.class);
+//            new CountDownTimer(1000, 1000) {
+//
+//                public void onTick(long millisUntilFinished) {
+//
+//                }
+//
+//                public void onFinish() {
+//                    startActivity(intent);
+//                    finish();
+//                }
+//            }.start();
         });
 
 //        binding.buttonQRcodeCheckMap.setOnClickListener(v -> {
@@ -92,6 +102,42 @@ public class ActivityOrderStart extends FragmentActivity implements OnMapReadyCa
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+    private void connectServer(){
+        try {
+            socket = IO.socket(Socket_URL_USER);
+            socket.connect();
+            socketConnect();
+            Log.i(TAG, "지금 연결함!!");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void socketConnect(){
+        socket.on(Socket.EVENT_CONNECT,onConnect);
+        socket.on(Socket.EVENT_CONNECT_ERROR,onConnectError);
+
+        //차량 개방 요청 모듈
+//        binding.btnOpen.setOnClickListener(v -> {
+////            int car_info = 1;
+////            socket.emit("user_openRequest", car_info);
+////            Log.d(TAG,"유저로부터 차량 개방 요청 보냄!");
+////            Log.d(TAG,"서버로 데이터 전송");
+////
+////        });
+    }
+
+    // 서버와 소켓 연결 성공 시 리스너
+    private Emitter.Listener onConnect = args ->runOnUiThread(()->{
+        Log.d(TAG,"Connect message : 서버와 연결이 성공하였습니다.");
+        Toast.makeText(getApplicationContext(),"서버와 연결이 성공하였습니다.",Toast.LENGTH_SHORT).show();
+    });
+
+    // 서버연결이 실패 했을 때 리스너
+    private Emitter.Listener onConnectError = args ->runOnUiThread(()->{
+        Log.e(TAG,"Error message : 서버와 연결이 실패됬습니다.");
+        Toast.makeText(getApplicationContext(),"서버와 연결이 실패됬습니다.",Toast.LENGTH_SHORT).show();
+    });
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

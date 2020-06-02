@@ -31,12 +31,20 @@ import static com.example.syder.App.FCM_CHANNEL_ID;
 public class MyFirebaseInstanceIDService extends FirebaseMessagingService {
      private static final String TAG = "MyTag";
      private char[] receiverNames;
+     static String receiverFcmToken;
      @RequiresApi(api = Build.VERSION_CODES.O)
      @Override
      public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
           super.onMessageReceived(remoteMessage);
           Log.d(TAG, "onMessageReceived: called");
           Log.d(TAG, "onMessageReceived: Message received from : " + remoteMessage.getFrom());
+
+
+         if(remoteMessage.getData().size() > 0){
+             Log.d(TAG,"onMessageReceived: data" + remoteMessage.getData());
+             receiverFcmToken = remoteMessage.getData().get("receiver_fcm_token");
+             Log.d(TAG, "onMessageReceived fcmToken: " + receiverFcmToken);
+         }
 
           if(remoteMessage.getNotification() != null){
                Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
@@ -81,19 +89,7 @@ public class MyFirebaseInstanceIDService extends FirebaseMessagingService {
 
           }
 
-          if(remoteMessage.getData().size() > 0){
-               Log.d(TAG,"onMessageReceived: data" + remoteMessage.getData());
-               String receiverFcmToken = remoteMessage.getData().get("receiver_fcm_token");
-               Log.d(TAG, "onMessageReceived fcmToken: " + receiverFcmToken);
 
-               Intent intent;
-               intent = new Intent(this, ActivityWait.class);
-               intent.putExtra("activity_name", "waypoint");
-               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-               PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                       intent, PendingIntent.FLAG_ONE_SHOT);
-          }
      }
 
      @Override

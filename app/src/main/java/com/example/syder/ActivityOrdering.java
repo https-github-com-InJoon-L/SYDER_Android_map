@@ -32,12 +32,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 public class ActivityOrdering extends FragmentActivity implements OnMapReadyCallback {
 
@@ -50,7 +55,7 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
     private int select;
     String activityName;
     String orderName;
-//    private static int
+
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,25 +87,19 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
         binding.agree.setOnClickListener(v -> {
             select = 1;
             selected();
-
-            Intent intent = new Intent(this, ActivityOrderEnd.class);
-            intent.putExtra("activity_name" , activityName);
-            intent.putExtra("order_name", orderName);
-            startActivity(intent);
-            finish();
         });
 
         binding.reject.setOnClickListener(v -> {
             select = 0;
             selected();
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
         });
+
         mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -164,10 +163,20 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
                 try {
                     JSONObject jsonResponse = new JSONObject(response);
                     String getMsg = jsonResponse.getString("message");
-                    String receiverToken = jsonResponse.getString("receiver_token");
                     Log.d(TAG, "동의요청" + getMsg);
                 } catch (JSONException e) {
                     e.printStackTrace();
+                }
+                if(select == 1) {
+                    Intent intent = new Intent(ActivityOrdering.this, ActivityOrderEnd.class);
+                    intent.putExtra("activity_name" , activityName);
+                    intent.putExtra("order_name", orderName);
+                    startActivity(intent);
+                    finish();
+                }else if(select == 0) {
+                    Intent intent = new Intent(ActivityOrdering.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
             }
         }, new Response.ErrorListener() {
