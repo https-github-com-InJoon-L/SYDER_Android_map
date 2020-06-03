@@ -60,7 +60,6 @@ public class MyFirebaseInstanceIDService extends FirebaseMessagingService {
                     intent = new Intent(this, ActivityOrdering.class);
                     intent.putExtra("activity_name", "waypoint");
                     intent.putExtra("order_name", ActivityLogin.name);
-                    intent.putExtra("order_id", ActivitySend.orderID);
                }else if(click_action.equals("AgreeActivity")){
                     intent = new Intent(this, ActivityWait.class);
                     intent.putExtra("activity_name", "waypoint");

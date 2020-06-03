@@ -77,18 +77,18 @@ public class ActivityOrderStart extends FragmentActivity implements OnMapReadyCa
 
         binding.buttonStart.setOnClickListener(v -> {
             binding.buttonStart.setVisibility(View.GONE);
-//            Intent intent = new Intent(this, MainActivity.class);
-//            new CountDownTimer(1000, 1000) {
-//
-//                public void onTick(long millisUntilFinished) {
-//
-//                }
-//
-//                public void onFinish() {
-//                    startActivity(intent);
-//                    finish();
-//                }
-//            }.start();
+            Intent intent = new Intent(this, MainActivity.class);
+            new CountDownTimer(1000, 1000) {
+
+                public void onTick(long millisUntilFinished) {
+
+                }
+
+                public void onFinish() {
+                    startActivity(intent);
+                    finish();
+                }
+            }.start();
         });
 
 //        binding.buttonQRcodeCheckMap.setOnClickListener(v -> {

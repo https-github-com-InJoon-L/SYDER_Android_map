@@ -43,7 +43,7 @@ public class ActivityWaypoint extends AppCompatActivity {
         requestQueue =  Volley.newRequestQueue(this);
         waypointRequest();
         routeRequest();
-//        orderCheck();
+        orderCheck();
         String activityName = "";
         try {
             Intent getActivity = getIntent();

@@ -1,6 +1,5 @@
 package com.example.syder;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import android.annotation.SuppressLint;
@@ -9,8 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -32,17 +29,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import io.socket.client.IO;
-import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
 
 public class ActivityOrdering extends FragmentActivity implements OnMapReadyCallback {
 
@@ -55,7 +47,8 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
     private int select;
     String activityName;
     String orderName;
-    String orderId;
+    int orderID;
+    int status;
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +58,7 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
 
         requestQueue =  Volley.newRequestQueue(this);
 
+        orderCheck();
 
         long now = System.currentTimeMillis() + MainActivity.travelTime * 60000; //*60000
         Log.d(TAG, "now : " + now);
@@ -74,12 +68,10 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
         binding.arriveTime.setText(getTime);
         activityName = "";
         orderName = "";
-        orderId = "";
         try {
             Intent getActivity = getIntent();
             activityName = Objects.requireNonNull(getActivity.getExtras()).getString("activity_name");
             orderName = getActivity.getExtras().getString("order_name");
-            orderId = getActivity.getExtras().getString("order_id");
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -101,7 +93,40 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
         mapFragment.getMapAsync(this);
     }
 
+    public void orderCheck() {
+        String url = "http://13.124.189.186/api/orders/check?guard=user";
+        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            public void onResponse(String response) {
+                Log.d(TAG,"주문쳌" + response);
+                try {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    JSONObject jsonOrders = jsonResponse.getJSONObject("order");
+                    orderID = jsonOrders.getInt("id");
+                    status = jsonOrders.getInt("status");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "주문쳌에러 하이고" );
+                }
 
+            }
+        },new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG,"에러 -> " + error.getMessage());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError{
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization" , "Bearer " + ActivityLogin.loginResponse);
+                return params;
+            }
+        };
+
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        Log.d(TAG, "ordercheck요청보냄");
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -156,7 +181,7 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
     }
 
     public void selected() {
-        String url = "http://13.124.189.186/api/consent/response?order_id=" + orderId + "&consent_or_not=" + select + "&guard=user";
+        String url = "http://13.124.189.186/api/consent/response?order_id=" + orderID + "&consent_or_not=" + select + "&guard=user";
 
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
 
