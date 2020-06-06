@@ -182,7 +182,6 @@ public class ActivityOrdering extends FragmentActivity implements OnMapReadyCall
 
     public void selected() {
         String url = "http://13.124.189.186/api/consent/response?order_id=" + orderID + "&consent_or_not=" + select + "&guard=user";
-
         StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
 
             public void onResponse(String response) {

@@ -97,9 +97,7 @@ public class ActivityLogin extends AppCompatActivity {
     }
 
     public void makeRequest() {
-
         StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-
 
             public void onResponse(String response) {
                 Log.d(TAG,"응답" + response);

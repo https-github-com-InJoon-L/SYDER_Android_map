@@ -36,46 +36,15 @@ public class ActivityMakeQRCode extends AppCompatActivity {
         binding = ActivityMakeQRCodeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        response_QRcode = "http://13.124.189.186/api/orders/5/orderAuth?orderId=";
         binding.buttonQRcode.setOnClickListener(v->{
-            QRCodecheck();
+            QRCodeButton();
         });
 
     }
 
 
-    public void QRCodecheck(){
-//        String url = "http://13.124.189.186/api/orders/5/orderAuth?orderId="+ActivityLogin.userId +"&userId="+ ActivitySend.receiverID+"&userCategory=sender&guard=user";
-        String url = "http://13.124.189.186/api/orders/5/orderAuth?order_id=1&user_id=2&user_category=sender&guard=user";
 
-        StringRequest request = new StringRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<String>() {
-
-            public void onResponse(String response) {
-                response_QRcode = response;
-                Log.d(TAG,"응답" + response_QRcode);
-                Log.d(TAG, "응답 : " +ActivityLogin.userId + ActivitySend.receiverID);
-                QRCodeButton();
-            }
-        },new Response.ErrorListener(){
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                NetworkResponse response = error.networkResponse;
-                String jsonError = new String(response.data);
-                response_QRcode = jsonError;
-                QRCodeButton();
-                Log.d(TAG, "에러" + response_QRcode);
-            }
-        }
-        ){
-            public Map getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("Authorization", "Bearer " + ActivityLogin.loginResponse);
-                return params;
-            }
-        };
-        request.setShouldCache(false);
-        requestQueue.add(request);
-        Log.i(TAG,"요청 보냄.");
-    }
 
     public void QRCodeButton() {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
